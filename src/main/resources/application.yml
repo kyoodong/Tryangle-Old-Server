@@ -1,4 +1,5 @@
 spring:
+#  profiles: local
   jpa:
     hibernate:
       ddl-auto: create
@@ -9,7 +10,13 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
-    org.hibernate.type: trace
+    org.hibernate.type: debug
 
 server:
   port: 9999
+  ssl:
+    enabled: true
+    key-store: keystore_dev.p12
+    key-store-password: Ga123!@#
+    key-store-type: PKCS12
+    key-alias: bns-ssl
