@@ -55,6 +55,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/")
                 .invalidateHttpSession(true)
                 .and()
+                .csrf()
+                .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .and()
                 .exceptionHandling().accessDeniedPage("/denied");
     }
 
