@@ -7,6 +7,11 @@
 </head>
 <body>
 <script th:inline="javascript">
+    Date.prototype.convertLocalTime = function() {
+        this.setTime(new Date(this.getTime() - this.getTimezoneOffset() * 60 * 1000).getTime())
+        return this
+    }
+
     $(document).ready(function() {
 
         const pathParam = window.location.pathname.split("/")
@@ -16,7 +21,8 @@
 
         const limit = 10
         let labelImageList = []
-        let anchorDatetime = new Date()
+        let anchorDatetime = new Date().convertLocalTime()
+        let isLoading = false
 
         $.getJSON("/label/api/" + category + "/" + user, {
             'limit': limit
@@ -31,15 +37,19 @@
             index--
 
             if (index < 0) {
+                if (isLoading)
+                    return
+                isLoading = true
                 $.getJSON("/label/api/" + category + "/" + user + "/last", {
                     'anchorDatetime': anchorDatetime.toISOString(),
                     'limit': limit
                 }, function(res) {
+                    isLoading = false
                     if (res.length > 0) {
                         labelImageList = res.concat(labelImageList.slice(0, limit))
                         index += limit
-                        console.log(labelImageList[0].scoredAt)
-                        anchorDatetime = new Date(labelImageList[0].scoredAt)
+                        anchorDatetime = new Date(labelImageList[0].scoredAt).convertLocalTime()
+                        console.log(anchorDatetime.toISOString())
                         $('#img').attr('src', '/training_image/' + labelImageList[index].id)
                     } else {
                         index = 0
@@ -53,9 +63,14 @@
         function goRight() {
             index++
             if (index === labelImageList.length) {
+                if (isLoading)
+                    return
+
+                isLoading = true
                 $.getJSON("/label/api/" + category + "/" + user,{
                     'limit': limit
                 }, function(res) {
+                    isLoading = false
                     if (res.length > 0) {
                         labelImageList = labelImageList.concat(res).slice(limit)
                         anchorDatetime = new Date(labelImageList[0].scoredAt)
