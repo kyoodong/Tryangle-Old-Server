@@ -3,12 +3,14 @@ package com.gomson.gomsonServer.label;
 import com.gomson.gomsonServer.domain.LabelImage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.tags.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +33,6 @@ public class LabelImageController {
 
     @PostMapping("create")
     public String createCategory(MultipartFile[] images, String name) {
-        System.out.println(name + images.length);
         labelImageService.add(images, name);
         return "redirect:/";
     }
@@ -41,10 +42,26 @@ public class LabelImageController {
         return "label";
     }
 
-    @GetMapping("{category}/{user}/{page}")
+    @GetMapping("api/{category}/{user}")
     @ResponseBody
-    public List<LabelImage> getImage(@PathVariable String category, @PathVariable Integer user,
-                                     @PathVariable Integer page) {
-        return labelImageService.findList(user);
+    public List<LabelImage> loadUnlabeledImageList(@PathVariable String category,
+                                                   @PathVariable Integer user,
+                                                   Integer limit) {
+        return labelImageService.loadUnlabeledImageList(category, user, limit);
+    }
+
+    @GetMapping("api/{category}/{user}/last")
+    @ResponseBody
+    public List<LabelImage> loadLastScoredImageList(@PathVariable String category,
+                                                    @PathVariable Integer user,
+                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime anchorDatetime,
+                                                    Integer limit) {
+        return labelImageService.loadLastScoredImageList(category, user, anchorDatetime, limit);
+    }
+
+    @PutMapping("api/score/{imageId}")
+    @ResponseBody
+    public Boolean scoreImage(@PathVariable String imageId, Integer score) {
+        return labelImageService.scoreImage(imageId, score);
     }
 }

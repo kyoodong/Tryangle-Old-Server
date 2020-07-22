@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class LabelImageService {
                     continue;
 
                 image.transferTo(file);
-                LabelImage labelImage = new LabelImage(image.getOriginalFilename(), category, file.getPath(), 0, index % 3, null);
+                LabelImage labelImage = new LabelImage(image.getOriginalFilename(), category, 0, index % 3, null);
                 labelImageList.add(labelImage);
                 index++;
             } catch (IOException e) {
@@ -67,7 +68,21 @@ public class LabelImageService {
      * @param scoredBy 채점자
      * @return
      */
-    public List<LabelImage> findList(Integer scoredBy) {
-        return labelImageRepository.findList(scoredBy);
+    public List<LabelImage> findList(String category, Integer scoredBy, int offset, int limit) {
+        return labelImageRepository.findList(category, scoredBy, offset, limit);
+    }
+
+    @Transactional
+    public Boolean scoreImage(String imageId, int score) {
+        return labelImageRepository.scoreImage(imageId, score);
+    }
+
+    public List<LabelImage> loadUnlabeledImageList(String category, Integer scoredBy, int limit) {
+        return labelImageRepository.loadUnlabeledImageList(category, scoredBy, limit);
+    }
+
+    public List<LabelImage> loadLastScoredImageList(String category, Integer scoredBy,
+                                                    LocalDateTime anchorDatetime, int limit) {
+        return labelImageRepository.loadLastScoredImageList(category, scoredBy, anchorDatetime, limit);
     }
 }

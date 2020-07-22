@@ -21,7 +21,6 @@ public class LabelImage {
     @JoinColumn(name = "category_id")
 //    @JoinColumn(name="user_id", insertable = false, updatable = false)
     private Category category;
-    private String image;
     private int score;
     private int scoredBy;
     private LocalDateTime scoredAt;
