@@ -254,3 +254,6 @@ gradle-app.setting
 
 database_config.yml
 keystore_dev.p12
+
+# 학습 이미지
+src/main/resources/static/training_image/**

@@ -7,10 +7,9 @@
 </head>
 <body>
 <h1>학습 카테고리</h1>
-<a href="/label/create">카테고리 추가</a>
 <ul>
     <li th:each="category : ${categories}">
-        <a th:text="${category.getName()}" th:href="@{label/__${category.getName()}__}"></a>
+        <a th:text="${category}" th:href="label/${category}"></a>
     </li>
 </ul>
 </body>
