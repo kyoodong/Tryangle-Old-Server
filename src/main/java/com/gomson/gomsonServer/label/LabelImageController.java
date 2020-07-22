@@ -42,14 +42,6 @@ public class LabelImageController {
         return "label";
     }
 
-    @GetMapping("api/{category}/{user}")
-    @ResponseBody
-    public List<LabelImage> loadUnlabeledImageList(@PathVariable String category,
-                                                   @PathVariable Integer user,
-                                                   Integer limit) {
-        return labelImageService.loadUnlabeledImageList(category, user, limit);
-    }
-
     @GetMapping("api/{category}/{user}/last")
     @ResponseBody
     public List<LabelImage> loadLastScoredImageList(@PathVariable String category,
@@ -57,6 +49,15 @@ public class LabelImageController {
                                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime anchorDatetime,
                                                     Integer limit) {
         return labelImageService.loadLastScoredImageList(category, user, anchorDatetime, limit);
+    }
+
+    @GetMapping("api/{category}/{user}/next")
+    @ResponseBody
+    public List<LabelImage> loadNextScoredImageList(@PathVariable String category,
+                                                    @PathVariable Integer user,
+                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime anchorDatetime,
+                                                    Integer limit) {
+        return labelImageService.loadNextScoredImageList(category, user, anchorDatetime, limit);
     }
 
     @PutMapping("api/score/{imageId}")

@@ -57,6 +57,18 @@ public class LabelImageRepository {
                 .getResultList();
     }
 
+    public List<LabelImage> loadNextScoredImageList(String category, Integer scoredBy,
+                                                    LocalDateTime anchorDatetime, int limit) {
+        return manager.createQuery("SELECT l FROM LabelImage l WHERE l.category = :category AND " +
+                        "l.scoredBy = :scoredBy AND l.score <> 0 AND l.scoredAt > :anchorDatetime ORDER by l.scoredAt ASC",
+                LabelImage.class)
+                .setParameter("category", new Category(category))
+                .setParameter("scoredBy", scoredBy)
+                .setParameter("anchorDatetime", anchorDatetime)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
     public Boolean scoreImage(String imageId, int score) {
         try {
             manager.createQuery("UPDATE LabelImage l SET l.score = :score, l.scoredAt = :now WHERE l.id = :imageId")

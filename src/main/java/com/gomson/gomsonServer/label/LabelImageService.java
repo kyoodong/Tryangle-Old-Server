@@ -85,4 +85,12 @@ public class LabelImageService {
                                                     LocalDateTime anchorDatetime, int limit) {
         return labelImageRepository.loadLastScoredImageList(category, scoredBy, anchorDatetime, limit);
     }
+
+    public List<LabelImage> loadNextScoredImageList(String category, Integer scoredBy,
+                                                    LocalDateTime anchorDatetime, int limit) {
+        List<LabelImage> list = labelImageRepository.loadNextScoredImageList(category, scoredBy, anchorDatetime, limit);
+        if (list.size() > 0)
+            return list;
+        return labelImageRepository.loadUnlabeledImageList(category, scoredBy, limit);
+    }
 }

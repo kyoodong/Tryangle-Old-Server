@@ -14,6 +14,11 @@
 
     $(document).ready(function() {
 
+        function showScore(score) {
+            $('#score-board-text').text(score)
+            $('#score-board').show().fadeOut()
+        }
+
         const pathParam = window.location.pathname.split("/")
         const category = pathParam[2]
         const user = pathParam[3]
@@ -22,14 +27,17 @@
         const limit = 10
         let labelImageList = []
         let anchorDatetime = new Date().convertLocalTime()
+        let nextAnchorDatetime = new Date().convertLocalTime()
         let isLoading = false
 
-        $.getJSON("/label/api/" + category + "/" + user, {
+        $.getJSON("/label/api/" + category + "/" + user + "/next", {
+            'anchorDatetime': nextAnchorDatetime.toISOString(),
             'limit': limit
         }, function(res) {
             if (res.length > 0) {
                 labelImageList = labelImageList.concat(res)
                 $('#img').attr('src', '/training_image/' + res[index].id)
+                $('#score').text(res[index].score)
             }
         })
 
@@ -46,55 +54,74 @@
                 }, function(res) {
                     isLoading = false
                     if (res.length > 0) {
-                        labelImageList = res.concat(labelImageList.slice(0, limit))
+                        labelImageList = res.reverse().concat(labelImageList.slice(0, limit))
                         index += limit
                         anchorDatetime = new Date(labelImageList[0].scoredAt).convertLocalTime()
-                        console.log(anchorDatetime.toISOString())
+                        nextAnchorDatetime = new Date(res[res.length - 1].scoredAt).convertLocalTime()
                         $('#img').attr('src', '/training_image/' + labelImageList[index].id)
+                        $('#score').text(labelImageList[index].score)
                     } else {
                         index = 0
                     }
                 })
             } else {
                 $('#img').attr('src', '/training_image/' + labelImageList[index].id)
+                $('#score').text(labelImageList[index].score)
             }
         }
 
         function goRight() {
             index++
-            if (index === labelImageList.length) {
+            if (index >= labelImageList.length) {
                 if (isLoading)
                     return
 
                 isLoading = true
-                $.getJSON("/label/api/" + category + "/" + user,{
+                $.getJSON("/label/api/" + category + "/" + user + "/next", {
                     'limit': limit
                 }, function(res) {
                     isLoading = false
                     if (res.length > 0) {
                         labelImageList = labelImageList.concat(res).slice(limit)
-                        anchorDatetime = new Date(labelImageList[0].scoredAt)
+
+                        if (labelImageList[0].scoredAt == null) {
+                            anchorDatetime = new Date().convertLocalTime()
+                        } else {
+                            anchorDatetime = new Date(labelImageList[0].scoredAt).convertLocalTime()
+                        }
+
+                        if (labelImageList[labelImageList.length - 1].scoredAt == null) {
+                            nextAnchorDatetime = new Date().convertLocalTime()
+                        } else {
+                            nextAnchorDatetime = new Date(labelImageList[labelImageList.length - 1].scoredAt).convertLocalTime()
+                        }
+                        console.log(nextAnchorDatetime.toISOString())
                         index -= limit
                         $('#img').attr('src', '/training_image/' + labelImageList[index].id)
+                        $('#score').text(labelImageList[index].score)
                     }
                 })
             } else {
                 $('#img').attr('src', '/training_image/' + labelImageList[index].id)
+                $('#score').text(labelImageList[index].score)
             }
         }
 
-        function score(id, score, after) {
+        function score(item, score, after) {
             const header = [[${_csrf.parameterName}]]
             const token = [[${_csrf.token}]]
             let data = {score: score}
             data[header] = token
 
             $.ajax({
-                url: '/label/api/score/' + id,
+                url: '/label/api/score/' + item.id,
                 type: 'put',
                 data: data,
                 success: function(res) {
                     if (res === true) {
+                        item.score = score
+                        item.scoredAt = new Date().convertLocalTime()
+                        showScore(score)
                         after()
                     } else {
                         alert("실패")
@@ -114,43 +141,51 @@
             }
             // 0
             if (event.keyCode === 48) {
-                score(labelImageList[index].id, -1, goRight)
+                score(labelImageList[index], -1, goRight)
             }
             // 1
             if (event.keyCode === 49) {
-                score(labelImageList[index].id, 1, goRight)
+                score(labelImageList[index], 1, goRight)
             }
             // 2
             if (event.keyCode === 50) {
-                score(labelImageList[index].id, 2, goRight)
+                score(labelImageList[index], 2, goRight)
             }
             // 3
             if (event.keyCode === 51) {
-                score(labelImageList[index].id, 3, goRight)
+                score(labelImageList[index], 3, goRight)
             }
             // 4
             if (event.keyCode === 52) {
-                score(labelImageList[index].id, 4, goRight)
+                score(labelImageList[index], 4, goRight)
             }
             // 5
             if (event.keyCode === 53) {
-                score(labelImageList[index].id, 5, goRight)
+                score(labelImageList[index], 5, goRight)
             }
             // backspace
             if (event.keyCode === 8) {
-                score(labelImageList[index].id, 0, goLeft)
+                score(labelImageList[index], 0, goRight)
             }
         })
     })
 </script>
 <h1>레이블</h1>
-점수 : 1,2,3,4,5
-이전 : <-
-다음 : ->
-취소 : 0
+<div>
+    <img id="img" style="width: 300px; height: 300px;"/>
+    <div>
+        점수 : <span id="score" style="font-size: 40px;"></span>
+    </div>
+</div>
 
-<img id="img" style="width: 300px; height: 300px;"/>
-<ul>
-</ul>
+<h1>사용법</h1>
+<div>점수 : 1,2,3,4,5</div>
+<div>이전 : <-</div>
+<div>다음 : -></div>
+<div>취소 : 0</div>
+
+<div id="score-board" style="width: 150px; position: fixed; top: 150px; left: 300px; text-align: center; background: #DDD; display: none;">
+    <h1 id="score-board-text">10</h1>
+</div>
 </body>
 </html>
