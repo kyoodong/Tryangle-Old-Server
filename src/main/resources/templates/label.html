@@ -95,7 +95,6 @@
                         } else {
                             nextAnchorDatetime = new Date(labelImageList[labelImageList.length - 1].scoredAt).convertLocalTime()
                         }
-                        console.log(nextAnchorDatetime.toISOString())
                         index -= limit
                         $('#img').attr('src', '/training_image/' + labelImageList[index].id)
                         $('#score').text(labelImageList[index].score)
@@ -172,7 +171,7 @@
 </script>
 <h1>레이블</h1>
 <div>
-    <img id="img" style="width: 300px; height: 300px;"/>
+    <img id="img" style="width: 640px; height: 640px;"/>
     <div>
         점수 : <span id="score" style="font-size: 40px;"></span>
     </div>
@@ -180,9 +179,10 @@
 
 <h1>사용법</h1>
 <div>점수 : 1,2,3,4,5</div>
+<div>취소 : Backspace</div>
+<div>오브젝트 미발견 : 0</div>
 <div>이전 : <-</div>
 <div>다음 : -></div>
-<div>취소 : 0</div>
 
 <div id="score-board" style="width: 150px; position: fixed; top: 150px; left: 300px; text-align: center; background: #DDD; display: none;">
     <h1 id="score-board-text">10</h1>
