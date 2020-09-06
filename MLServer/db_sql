@@ -1,0 +1,5 @@
+CREATE DATABASE tryangle CHARACTER SET utf8;
+
+# aquerytool url 에서 sql 추출
+URL : https://aquerytool.com:443/aquerymain/index/?rurl=d436d747-7a78-4de9-aedb-cc607d1505f3&
+Password : mas5rb

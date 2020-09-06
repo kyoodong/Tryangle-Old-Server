@@ -257,3 +257,7 @@ keystore_dev.p12
 
 # 학습 이미지
 src/main/resources/static/training_image/**
+MLServer/env
+MLServer/db_sql
+MLServer/mysql.cnf
+MLServer/aktwelve_mask_rcnn
