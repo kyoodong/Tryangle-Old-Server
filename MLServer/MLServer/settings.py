@@ -26,8 +26,8 @@ SECRET_KEY = 'q*bb3i23df$&5ye&ur+%0cf*tumvbpcrz8!h%=!%0guq#byfn!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
+# APPEND_SLASH = False
 
 # Application definition
 
@@ -71,6 +71,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'MLServer.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer'
+    ],
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.JSONParser',
+     )
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases

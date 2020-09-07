@@ -257,7 +257,7 @@ keystore_dev.p12
 
 # 학습 이미지
 src/main/resources/static/training_image/**
-MLServer/env
+MLServer/venv
 MLServer/db_sql
 MLServer/mysql.cnf
 mysql.cnf

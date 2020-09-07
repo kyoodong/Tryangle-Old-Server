@@ -4,6 +4,10 @@ import os
 import sys
 
 
+GOMSON_ROOT = os.path.abspath("gomson")
+sys.path.append(GOMSON_ROOT)
+
+
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'MLServer.settings')

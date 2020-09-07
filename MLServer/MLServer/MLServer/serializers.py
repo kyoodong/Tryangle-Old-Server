@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from MLServer.MLServer.models import User, Image
+from MLServer.MLServer.tryangle_models import User, Image
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
