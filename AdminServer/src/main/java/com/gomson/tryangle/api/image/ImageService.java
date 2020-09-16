@@ -6,6 +6,7 @@ import com.gomson.tryangle.dto.GuideDTO;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 @Service
 public class ImageService {
@@ -32,27 +36,42 @@ public class ImageService {
     @Autowired
     private ImageRetrofitService imageRetrofitService;
 
-    boolean insertImageList(String baseDirPath, List<MultipartFile> fileList) {
+    boolean insertImageList(String baseDirPath, MultipartFile imageZip) {
         try {
             int count = 0;
-            for (MultipartFile multipartFile : fileList) {
-                String fileName = multipartFile.getOriginalFilename();
-                String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
-                String fileNameWithoutType = fileName.substring(0, fileName.lastIndexOf("."));
-                int index = 0;
-                String filePath = baseDirPath + fileNameWithoutType + index + "." + fileType;
-                File file = new File(filePath);
 
-                while (file.exists()) {
-                    index++;
-                    filePath = baseDirPath + fileNameWithoutType + index + "." + fileType;
-                    file = new File(filePath);
+            // zip 파일 체크
+            String fileType = imageZip.getOriginalFilename().substring(imageZip.getOriginalFilename().lastIndexOf(".") + 1);
+            if (!fileType.equals("zip"))
+                return false;
+
+            // zip 파일 압축 해제
+            ZipInputStream zis = new ZipInputStream(imageZip.getInputStream());
+            ZipEntry entry = zis.getNextEntry();
+            byte[] buffer = new byte[1024];
+            int i = 0;
+            while (entry != null) {
+                String fileName = entry.getName();
+                File file = new File(baseDirPath, fileName);
+                if (file.exists()) {
+                    entry = zis.getNextEntry();
+                    continue;
                 }
 
-                final int I = count % 3;
-                final String FILE_PATH = fileNameWithoutType + index + "." + fileType;
-                RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), multipartFile.getBytes());
-                MultipartBody.Part body = MultipartBody.Part.createFormData("file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
+                final int I = i % 3;
+                i++;
+
+                FileOutputStream fos = new FileOutputStream(file);
+                int len;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+                fos.close();
+
+                RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"),
+                        FileUtils.readFileToByteArray(file));
+                MultipartBody.Part body = MultipartBody.Part.createFormData(
+                        "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
                 Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
                 call.enqueue(new Callback<JSONObject>() {
                     @Override
@@ -61,7 +80,7 @@ public class ImageService {
                             System.out.println("성공");
                             GuideDTO guideDTO = new GuideDTO(response.body());
                             int count = guideDTO.getCount();
-                            Image image = new Image(0, FILE_PATH, String.valueOf(I), count, -1);
+                            Image image = new Image(0, fileName, String.valueOf(I), count, -1);
                             imageDao.insertImage(image);
                         }
                     }
@@ -73,10 +92,11 @@ public class ImageService {
                     }
                 });
 
-                // 파일 저장
-                multipartFile.transferTo(file);
-                count++;
+                entry = zis.getNextEntry();
             }
+            zis.closeEntry();
+            zis.close();
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();

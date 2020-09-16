@@ -10,6 +10,10 @@ spring:
     properties:
       hibernate:
         format-sql: true
+  devtools:
+    restart:
+      exclude: images/**
+
 
 logging:
   level:
@@ -17,7 +21,7 @@ logging:
     org.hibernate.type: debug
 
 server:
-  port: 7778
+  port: 7776
 #  ssl:
 #    enabled: true
 #    key-store: keystore_dev.p12

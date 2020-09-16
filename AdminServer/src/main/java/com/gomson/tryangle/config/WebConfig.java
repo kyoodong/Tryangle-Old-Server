@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private final int MAX_SIZE = 10 * 1024 * 1024;
+    private final long MAX_SIZE = 10L * 1024 * 1024 * 1024;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
