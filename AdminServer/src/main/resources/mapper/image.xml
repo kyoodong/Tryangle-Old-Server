@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gomson.tryangle.dao.ImageDao">
+
+    <insert id="insertImage" parameterType="Image">
+        INSERT INTO tryangle_image VALUES (
+            0, #{url}, #{author}, #{compositionProblemCount}, #{score}
+        )
+    </insert>
+
+    <select id="selectUnscoredImageList" resultType="Image">
+        SELECT * FROM tryangle_image
+        WHERE author = #{userId}
+        AND score = -1
+    </select>
+
+    <update id="updateImageScore">
+        UPDATE tryangle_image SET
+        score = #{score}
+        WHERE id = #{imageId}
+    </update>
+
+</mapper>

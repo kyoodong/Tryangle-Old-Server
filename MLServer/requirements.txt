@@ -1,3 +1,4 @@
 mysqlclient
 django
 django-rest-framework
+opencv-python

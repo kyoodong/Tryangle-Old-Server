@@ -14,6 +14,8 @@ class Image(models.Model):
     id = models.AutoField(db_column='id', primary_key=True)
     url = models.CharField(db_column='url', max_length=300)
     author = models.ForeignKey(User, on_delete=models.CASCADE, db_column='author')
+    composition_problem_count = models.IntegerField(db_column="composition_problem_count")
+    score = models.IntegerField(db_column="score")
 
 
 class Object(models.Model):

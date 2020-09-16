@@ -25,5 +25,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('image-segmentation', views.ImageSegmentationView.as_view())
+    path('image-segmentation', views.ImageSegmentationView.as_view()),
+    path('image-guide', views.ImageGuideView.as_view())
 ]
