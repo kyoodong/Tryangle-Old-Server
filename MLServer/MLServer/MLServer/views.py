@@ -1,14 +1,14 @@
-from MLServer.MLServer.tryangle_models import User
-from rest_framework import viewsets, permissions, authentication, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.parsers import JSONParser, MultiPartParser
-from MLServer.MLServer.serializers import UserSerializer
-
 import cv2
 import numpy as np
+from rest_framework import viewsets, permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 import process.image_api as api
-from process.guider import Guider
+from MLServer.MLServer.serializers import UserSerializer
+from MLServer.MLServer.tryangle_models import User
+from process.guider import Guider, LineComponent
+import process.color as color_guide
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -37,8 +37,30 @@ class ImageGuideView(APIView):
     def post(self, request, format=None):
         file = request.FILES['file']
         image = cv2.imdecode(np.frombuffer(file.file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        dominant_colors = list(color_guide.find_dominant_colors(image))
         guider = Guider(image)
-        body = {"guide": guider.guide_list}
+
+        component_list = list()
+        for component in guider.component_list:
+            if isinstance(component, LineComponent):
+                component_list.append(component)
+            else:
+                component_dict = dict()
+                data = dict()
+                data['id'] = component.id
+                data['class'] = component.object.clazz
+                data['center_point_x'] = component.object.center_point[0]
+                data['center_point_y'] = component.object.center_point[1]
+                data['area'] = component.object.area
+                component_dict['ObjectComponent'] = data
+                component_list.append(component_dict)
+
+        body = {
+            "guide": guider.guide_list,
+            "component_list": component_list,
+            "dominant_color_list": dominant_colors,
+            "image_size": list(image.shape[:2])
+        }
         print(body)
         return Response(str(body), status=status.HTTP_200_OK, content_type='application/json')
 
