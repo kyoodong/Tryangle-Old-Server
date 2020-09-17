@@ -59,17 +59,32 @@ public class GuideDTO {
                     int startY = linePointArray.getInt(1);
                     int endX = linePointArray.getInt(2);
                     int endY = linePointArray.getInt(3);
-                    componentList.add(new LineComponent(line.getInt("id"), startX, startY, endX, endY));
+                    componentList.add(new LineComponent(0, line.getInt("id"), startX, startY, endX, endY));
 
                 } else if (component.has("ObjectComponent")) {
                     JSONObject object = component.getJSONObject("ObjectComponent");
-                    componentList.add(new ObjectComponent(
-                            object.getInt("id"),
-                            object.getInt("class"),
-                            object.getInt("center_point_x"),
-                            object.getInt("center_point_y"),
-                            (float) (imageWidth * imageHeight) / object.getInt("area")
-                    ));
+                    ObjectComponent objectComponent;
+                    if (object.has("pose")) {
+                        objectComponent = new HumanComponent(
+                                0,
+                                object.getInt("id"),
+                                object.getInt("class"),
+                                object.getInt("center_point_x"),
+                                object.getInt("center_point_y"),
+                                (float) (imageWidth * imageHeight) / object.getInt("area"),
+                                object.getInt("pose")
+                        );
+                    } else {
+                        objectComponent = new ObjectComponent(
+                                0,
+                                object.getInt("id"),
+                                object.getInt("class"),
+                                object.getInt("center_point_x"),
+                                object.getInt("center_point_y"),
+                                (float) (imageWidth * imageHeight) / object.getInt("area")
+                        );
+                    }
+                    componentList.add(objectComponent);
                 }
             }
 

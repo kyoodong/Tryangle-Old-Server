@@ -1,10 +1,7 @@
 package com.gomson.tryangle.api.image;
 
 import com.gomson.tryangle.dao.ImageDao;
-import com.gomson.tryangle.domain.Component;
-import com.gomson.tryangle.domain.Image;
-import com.gomson.tryangle.domain.LineComponent;
-import com.gomson.tryangle.domain.ObjectComponent;
+import com.gomson.tryangle.domain.*;
 import com.gomson.tryangle.dto.GuideDTO;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -92,6 +89,9 @@ public class ImageService {
                             imageDao.insertObject(image.getId(), (ObjectComponent) component);
                         } else if (component instanceof LineComponent) {
                             imageDao.insertEffectiveLine(image.getId(), (LineComponent) component);
+                        }
+                        if (component instanceof HumanComponent) {
+                            imageDao.insertHumanPose(component.getId(), ((HumanComponent) component).getPose());
                         }
                     }
 

@@ -10,7 +10,7 @@
         )
     </insert>
 
-    <insert id="insertObject">
+    <insert id="insertObject" parameterType="ObjectComponent" useGeneratedKeys="true" keyProperty="objectComponent.id">
         INSERT INTO tryangle_image_object VALUES (
             0,
             #{imageId},
@@ -21,7 +21,7 @@
         )
     </insert>
 
-    <insert id="insertEffectiveLine">
+    <insert id="insertEffectiveLine" parameterType="LineComponent" useGeneratedKeys="true" keyProperty="lineComponent.id">
         INSERT INTO tryangle_image_effective_line VALUES (
             0,
             #{imageId},
@@ -37,6 +37,12 @@
             0,
             #{imageId},
             #{colorId}
+        )
+    </insert>
+
+    <insert id="insertHumanPose">
+        INSERT INTO tryangle_object_person_pose VALUES (
+            0, #{objectId}, #{poseId}
         )
     </insert>
 

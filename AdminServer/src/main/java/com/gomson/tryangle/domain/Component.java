@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class Component {
 
-    private int id;
+    private long id;
+    private long componentId;
 
 }

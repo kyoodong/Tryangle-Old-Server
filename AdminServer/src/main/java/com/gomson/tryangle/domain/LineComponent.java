@@ -7,8 +7,8 @@ public class LineComponent extends Component {
     private int endX;
     private int endY;
 
-    public LineComponent(int id, int startX, int startY, int endX, int endY) {
-        super(id);
+    public LineComponent(long id, long componentId, int startX, int startY, int endX, int endY) {
+        super(id, componentId);
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;

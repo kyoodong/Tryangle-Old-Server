@@ -17,6 +17,7 @@ public interface ImageDao {
     void insertObject(@Param("imageId") long imageId, @Param("objectComponent") ObjectComponent objectComponent);
     void insertEffectiveLine(@Param("imageId") long imageId, @Param("lineComponent") LineComponent lineComponent);
     void insertDominantColor(@Param("imageId") long imageId, @Param("colorId") long colorId);
+    void insertHumanPose(@Param("objectId") long objectId, @Param("poseId") int poseId);
 
     List<Image> selectUnscoredImageList(String userId);
 
