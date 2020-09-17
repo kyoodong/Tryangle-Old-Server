@@ -10,10 +10,12 @@ public class ObjectGuide extends Guide {
 
     private int diffX;
     private int diffY;
+    private int objectClass;
 
-    public ObjectGuide(int objectId, int guideId, int diffX, int diffY) {
+    public ObjectGuide(int objectId, int guideId, int diffX, int diffY, int objectClass) {
         super(objectId, guideId);
         this.diffX = diffX;
         this.diffY = diffY;
+        this.objectClass = objectClass;
     }
 }

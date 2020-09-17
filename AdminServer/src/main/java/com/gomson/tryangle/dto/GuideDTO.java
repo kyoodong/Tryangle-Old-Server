@@ -1,8 +1,7 @@
 package com.gomson.tryangle.dto;
 
-import com.gomson.tryangle.domain.Guide;
-import com.gomson.tryangle.domain.LineGuide;
-import com.gomson.tryangle.domain.ObjectGuide;
+import com.gomson.tryangle.domain.*;
+import lombok.Getter;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -10,18 +9,24 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class GuideDTO {
 
     private List<List<Guide>> guideList;
+    private List<Component> componentList;
+    private List<Integer> dominantColorList;
 
     public GuideDTO(JSONObject jsonObject) {
         guideList = new ArrayList<>(10);
+        componentList = new ArrayList<>();
+        dominantColorList = new ArrayList<>();
+
         for (int i = 0; i < 10; i++)
             guideList.add(new ArrayList<>());
 
         try {
-            JSONArray data = jsonObject.getJSONArray("guide");
-            JSONArray guideArray = data.getJSONArray(0);
+            JSONArray guide = jsonObject.getJSONArray("guide");
+            JSONArray guideArray = guide.getJSONArray(0);
             for (int i = 0; i < guideArray.length(); i++) {
                 JSONObject guideObject = guideArray.getJSONObject(i);
                 if (guideObject.has("LineGuide")) {
@@ -35,8 +40,42 @@ public class GuideDTO {
                     int guideId = objectGuide.getInt("guide_id");
                     int diffX = objectGuide.getInt("diff_x");
                     int diffY = objectGuide.getInt("diff_y");
-                    guideList.get(i).add(new ObjectGuide(objectId, guideId, diffX, diffY));
+                    int objectClass = objectGuide.getInt("object_class");
+                    guideList.get(i).add(new ObjectGuide(objectId, guideId, diffX, diffY, objectClass));
                 }
+            }
+
+            JSONArray imageSize = jsonObject.getJSONArray("image_size");
+            int imageHeight = imageSize.getInt(0);
+            int imageWidth = imageSize.getInt(1);
+
+            JSONArray componentArray = jsonObject.getJSONArray("component_list");
+            for (int i = 0; i < componentArray.length(); i++) {
+                JSONObject component = componentArray.getJSONObject(i);
+                if (component.has("LineComponent")) {
+                    JSONObject line = component.getJSONObject("LineComponent");
+                    JSONArray linePointArray = line.getJSONArray("line");
+                    int startX = linePointArray.getInt(0);
+                    int startY = linePointArray.getInt(1);
+                    int endX = linePointArray.getInt(2);
+                    int endY = linePointArray.getInt(3);
+                    componentList.add(new LineComponent(line.getInt("id"), startX, startY, endX, endY));
+
+                } else if (component.has("ObjectComponent")) {
+                    JSONObject object = component.getJSONObject("ObjectComponent");
+                    componentList.add(new ObjectComponent(
+                            object.getInt("id"),
+                            object.getInt("class"),
+                            object.getInt("center_point_x"),
+                            object.getInt("center_point_y"),
+                            (float) (imageWidth * imageHeight) / object.getInt("area")
+                    ));
+                }
+            }
+
+            JSONArray dominantColorArray = jsonObject.getJSONArray("dominant_color_list");
+            for (int i = 0; i < dominantColorArray.length(); i++) {
+                dominantColorList.add(dominantColorArray.getInt(i));
             }
         } catch (JSONException e) {
             e.printStackTrace();

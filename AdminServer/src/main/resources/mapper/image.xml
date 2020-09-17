@@ -4,9 +4,39 @@
 
 <mapper namespace="com.gomson.tryangle.dao.ImageDao">
 
-    <insert id="insertImage" parameterType="Image">
+    <insert id="insertImage" parameterType="Image" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tryangle_image VALUES (
             0, #{url}, #{author}, #{compositionProblemCount}, #{score}
+        )
+    </insert>
+
+    <insert id="insertObject">
+        INSERT INTO tryangle_image_object VALUES (
+            0,
+            #{imageId},
+            #{objectComponent.clazz},
+            #{objectComponent.centerPointX},
+            #{objectComponent.centerPointY},
+            #{objectComponent.area}
+        )
+    </insert>
+
+    <insert id="insertEffectiveLine">
+        INSERT INTO tryangle_image_effective_line VALUES (
+            0,
+            #{imageId},
+            #{lineComponent.startX},
+            #{lineComponent.startY},
+            #{lineComponent.endX},
+            #{lineComponent.endY}
+        )
+    </insert>
+
+    <insert id="insertDominantColor">
+        INSERT INTO tryangle_image_dominant_color VALUES (
+            0,
+            #{imageId},
+            #{colorId}
         )
     </insert>
 

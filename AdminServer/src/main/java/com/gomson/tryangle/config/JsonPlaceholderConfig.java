@@ -19,6 +19,12 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class JsonPlaceholderConfig {
 
+    // GPU
+    private static final String ML_SERVER_URL = "http://14.35.207.80:8001";
+
+    // CPU
+//    private static final String ML_SERVER_URL = "http://14.35.207.80:8000";
+
 //    @Autowired
 //    private Interceptor jsonPlaceholderInterceptor;
 
@@ -47,7 +53,7 @@ public class JsonPlaceholderConfig {
             @Qualifier("jsonPlaceholderObjectMapper") ObjectMapper jsonPlaceholderObjectMapper,
             @Qualifier("jsonPlaceholderOKHttpClient") OkHttpClient jsonPlaceholderOKHttpClient) {
         return new Retrofit.Builder()
-                .baseUrl("http://localhost:8000")
+                .baseUrl(ML_SERVER_URL)
                 .addConverterFactory(JacksonConverterFactory.create(jsonPlaceholderObjectMapper))
                 .client(jsonPlaceholderOKHttpClient)
                 .build();

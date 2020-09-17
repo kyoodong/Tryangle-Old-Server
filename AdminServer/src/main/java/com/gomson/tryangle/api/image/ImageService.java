@@ -1,7 +1,10 @@
 package com.gomson.tryangle.api.image;
 
 import com.gomson.tryangle.dao.ImageDao;
+import com.gomson.tryangle.domain.Component;
 import com.gomson.tryangle.domain.Image;
+import com.gomson.tryangle.domain.LineComponent;
+import com.gomson.tryangle.domain.ObjectComponent;
 import com.gomson.tryangle.dto.GuideDTO;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -10,7 +13,6 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -18,9 +20,7 @@ import retrofit2.Response;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -37,9 +37,8 @@ public class ImageService {
     private ImageRetrofitService imageRetrofitService;
 
     boolean insertImageList(String baseDirPath, MultipartFile imageZip) {
+        File file = null;
         try {
-            int count = 0;
-
             // zip 파일 체크
             String fileType = imageZip.getOriginalFilename().substring(imageZip.getOriginalFilename().lastIndexOf(".") + 1);
             if (!fileType.equals("zip"))
@@ -52,7 +51,16 @@ public class ImageService {
             int i = 0;
             while (entry != null) {
                 String fileName = entry.getName();
-                File file = new File(baseDirPath, fileName);
+                int slashIndex = fileName.lastIndexOf("/");
+                if (slashIndex > 0) {
+                    fileName = fileName.substring(slashIndex + 1);
+                }
+                if (fileName.length() <= 4) {
+                    entry = zis.getNextEntry();
+                    continue;
+                }
+
+                file = new File(baseDirPath, fileName);
                 if (file.exists()) {
                     entry = zis.getNextEntry();
                     continue;
@@ -73,25 +81,24 @@ public class ImageService {
                 MultipartBody.Part body = MultipartBody.Part.createFormData(
                         "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
                 Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
-                call.enqueue(new Callback<JSONObject>() {
-                    @Override
-                    public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
-                        if (response.isSuccessful()) {
-                            System.out.println("성공");
-                            GuideDTO guideDTO = new GuideDTO(response.body());
-                            int count = guideDTO.getCount();
-                            Image image = new Image(0, fileName, String.valueOf(I), count, -1);
-                            imageDao.insertImage(image);
+                Response<JSONObject> response = call.execute();
+                if (response.isSuccessful()) {
+                    GuideDTO guideDTO = new GuideDTO(response.body());
+                    int guideCount = guideDTO.getCount();
+                    Image image = new Image(0, fileName, String.valueOf(I), guideCount, -1);
+                    imageDao.insertImage(image);
+                    for (Component component : guideDTO.getComponentList()) {
+                        if (component instanceof ObjectComponent) {
+                            imageDao.insertObject(image.getId(), (ObjectComponent) component);
+                        } else if (component instanceof LineComponent) {
+                            imageDao.insertEffectiveLine(image.getId(), (LineComponent) component);
                         }
                     }
 
-                    @Override
-                    public void onFailure(Call<JSONObject> call, Throwable t) {
-                        System.out.println("실패");
-                        t.printStackTrace();
+                    for (int colorId : guideDTO.getDominantColorList()) {
+                        imageDao.insertDominantColor(image.getId(), colorId);
                     }
-                });
-
+                }
                 entry = zis.getNextEntry();
             }
             zis.closeEntry();
@@ -99,6 +106,8 @@ public class ImageService {
 
             return true;
         } catch (Exception e) {
+            if (file != null)
+                file.deleteOnExit();
             e.printStackTrace();
             return false;
         }

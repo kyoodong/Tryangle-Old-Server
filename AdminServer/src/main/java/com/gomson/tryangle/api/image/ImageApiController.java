@@ -25,10 +25,9 @@ public class ImageApiController {
     @PostMapping("insert")
     private boolean insertImageList(HttpServletRequest request, @RequestParam("imageZip") MultipartFile imageZip)
         throws IOException {
-        imageService.insertImageList(
+        return imageService.insertImageList(
                 resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",
                 imageZip);
-        return true;
     }
 
     @GetMapping("{userId}")
