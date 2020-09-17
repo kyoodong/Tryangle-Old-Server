@@ -9,6 +9,7 @@ from MLServer.MLServer.serializers import UserSerializer
 from MLServer.MLServer.tryangle_models import User
 from process.guider import Guider, LineComponent
 import process.color as color_guide
+from process.object import Human, Object
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -47,6 +48,10 @@ class ImageGuideView(APIView):
             else:
                 component_dict = dict()
                 data = dict()
+
+                if isinstance(component.object, Human):
+                    data['pose'] = component.object.pose_class
+
                 data['id'] = component.id
                 data['class'] = component.object.clazz
                 data['center_point_x'] = component.object.center_point[0]
