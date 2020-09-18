@@ -35,8 +35,6 @@ public class ImageApiController {
         return imageService.selectUnscoredImageList(userId);
     }
 
-
-
     @PostMapping("score")
     private Boolean scoreImage(@RequestBody Map<String, Integer> dto) {
         return imageService.scoreImage(dto.get("imageId"), dto.get("score"));
