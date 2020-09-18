@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gomson.tryangle.dao.AccessTokenDao">
+
+    <insert id="insertToken" parameterType="AccessToken" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tryangle_access_token VALUES (
+            0, (SELECT UUID()), #{createdAt}, #{expiredAt}, 0, #{ip}
+        )
+    </insert>
+
+    <select id="selectToken" resultType="AccessToken">
+        SELECT * FROM tryangle_access_token
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAccessTokenByToken" resultType="AccessToken">
+        SELECT * FROM tryangle_access_token
+        WHERE token = #{token}
+    </select>
+
+    <update id="addAccessCount">
+        UPDATE tryangle_access_token
+        SET access_count = access_count + 1
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteAccessToken">
+        DELETE FROM tryangle_access_token
+        WHERE id = #{id}
+    </delete>
+</mapper>

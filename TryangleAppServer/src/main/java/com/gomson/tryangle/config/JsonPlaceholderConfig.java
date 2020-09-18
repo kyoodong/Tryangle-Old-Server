@@ -3,10 +3,8 @@ package com.gomson.tryangle.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.gomson.tryangle.api.image.ImageRetrofitService;
-import okhttp3.Interceptor;
+import com.gomson.tryangle.api.admin.image.AdminImageRetrofitService;
 import okhttp3.OkHttpClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,9 +58,9 @@ public class JsonPlaceholderConfig {
     }
 
     @Bean
-    public ImageRetrofitService imageRetrofitService(
+    public AdminImageRetrofitService imageRetrofitService(
             @Qualifier("jsonPlaceholderRetrofit") Retrofit jsonPlaceholderRetrofit
     ) {
-        return jsonPlaceholderRetrofit.create(ImageRetrofitService.class);
+        return jsonPlaceholderRetrofit.create(AdminImageRetrofitService.class);
     }
 }

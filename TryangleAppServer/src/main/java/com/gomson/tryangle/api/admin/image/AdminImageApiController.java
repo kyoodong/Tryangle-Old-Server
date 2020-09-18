@@ -1,0 +1,42 @@
+package com.gomson.tryangle.api.admin.image;
+
+import com.gomson.tryangle.domain.Image;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+@CrossOrigin(origins = "*")
+@RestController
+@RequestMapping("api/admin/image")
+public class AdminImageApiController {
+
+    @Autowired
+    private AdminImageService imageService;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
+
+    @PostMapping("insert")
+    private boolean insertImageList(HttpServletRequest request, @RequestParam("imageZip") MultipartFile imageZip)
+        throws IOException {
+        return imageService.insertImageList(
+                resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",
+                imageZip);
+    }
+
+    @GetMapping("{userId}")
+    private List<Image> selectUnscoredImageList(@PathVariable String userId) {
+        return imageService.selectUnscoredImageList(userId);
+    }
+
+    @PostMapping("score")
+    private Boolean scoreImage(@RequestBody Map<String, Integer> dto) {
+        return imageService.scoreImage(dto.get("imageId"), dto.get("score"));
+    }
+}

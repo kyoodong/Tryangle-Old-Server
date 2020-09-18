@@ -1,10 +1,12 @@
 package com.gomson.tryangle.config;
 
+import com.gomson.tryangle.interceptor.AccessTokenInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -30,7 +32,15 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public String mlServerUrl() {
-        return "localhost:8000/";
+    public AccessTokenInterceptor accessTokenInterceptor() {
+        return new AccessTokenInterceptor();
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(accessTokenInterceptor())
+                .addPathPatterns("/api/**")
+                .excludePathPatterns("/api/access-token/**")
+                .excludePathPatterns("/api/admin/**");
     }
 }
