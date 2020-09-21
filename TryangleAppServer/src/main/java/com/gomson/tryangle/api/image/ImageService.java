@@ -57,8 +57,6 @@ public class ImageService {
 
             if (objectList.size() > 0) {
                 imageUrlList = imageDao.selectImageUrlByObject(objectList, 5, 50);
-            } else {
-
             }
 
             if (personList.size() > 0) {

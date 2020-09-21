@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -29,6 +30,7 @@ public class AdminImageService {
     @Autowired
     private AdminImageRetrofitService adminImageRetrofitService;
 
+    @Transactional
     boolean insertImageList(String baseDirPath, MultipartFile imageZip) {
         File file = null;
         try {

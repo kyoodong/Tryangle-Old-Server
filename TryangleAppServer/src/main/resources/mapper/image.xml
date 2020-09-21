@@ -17,7 +17,9 @@
             #{objectComponent.clazz},
             #{objectComponent.centerPointX},
             #{objectComponent.centerPointY},
-            #{objectComponent.area}
+            #{objectComponent.area},
+            #{objectComponent.mask},
+            #{objectComponent.roi}
         )
     </insert>
 

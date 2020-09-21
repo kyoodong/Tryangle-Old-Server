@@ -66,24 +66,42 @@ public class GuideDTO {
                 } else if (component.has("ObjectComponent")) {
                     JSONObject object = component.getJSONObject("ObjectComponent");
                     ObjectComponent objectComponent;
+
+                    int id = object.getInt("id");
+                    int clazz = object.getInt("class");
+                    int centerPointX = object.getInt("center_point_x");
+                    int centerPointY = object.getInt("center_point_y");
+                    int area = object.getInt("area");
+                    String mask = object.getString("mask");
+                    mask = mask.replaceAll("true", "1")
+                            .replaceAll("false", "0")
+                            .replaceAll(" ", "");
+
+                    String roi = object.getString("roi");
+
                     if (object.has("pose")) {
+                        int pose = object.getInt("pose");
                         objectComponent = new PersonComponent(
                                 0,
-                                object.getInt("id"),
-                                object.getInt("class"),
-                                object.getInt("center_point_x"),
-                                object.getInt("center_point_y"),
-                                (float) (imageWidth * imageHeight) / object.getInt("area"),
-                                object.getInt("pose")
+                                id,
+                                clazz,
+                                centerPointX,
+                                centerPointY,
+                                (float) (imageWidth * imageHeight) / area,
+                                mask,
+                                roi,
+                                pose
                         );
                     } else {
                         objectComponent = new ObjectComponent(
                                 0,
-                                object.getInt("id"),
-                                object.getInt("class"),
-                                object.getInt("center_point_x"),
-                                object.getInt("center_point_y"),
-                                (float) (imageWidth * imageHeight) / object.getInt("area")
+                                id,
+                                clazz,
+                                centerPointX,
+                                centerPointY,
+                                (float) (imageWidth * imageHeight) / area,
+                                mask,
+                                roi
                         );
                     }
                     componentList.add(objectComponent);

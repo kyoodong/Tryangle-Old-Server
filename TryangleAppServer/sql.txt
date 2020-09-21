@@ -42,6 +42,8 @@ CREATE TABLE tryangle.tryangle_image_object
     `center_x`   FLOAT    NOT NULL    COMMENT '중심점 위치(x)', 
     `center_y`   FLOAT    NOT NULL    COMMENT '중심점 위치(y)', 
     `area`       FLOAT    NOT NULL    COMMENT '크기', 
+    `mask`       JSON     NOT NULL    COMMENT '마스크이미지 json array',
+    `roi`        JSON     NOT NULL    COMMENT 'roi json array',
     PRIMARY KEY (id)
 );
 
