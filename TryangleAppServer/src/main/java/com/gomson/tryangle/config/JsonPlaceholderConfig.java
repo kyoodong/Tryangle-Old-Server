@@ -18,10 +18,10 @@ import java.util.concurrent.TimeUnit;
 public class JsonPlaceholderConfig {
 
     // GPU
-    public static final String ML_SERVER_URL = "http://14.35.207.80:8001";
+//    public static final String ML_SERVER_URL = "http://14.35.207.80:8001";
 
     // CPU
-//    public static final String ML_SERVER_URL = "http://14.35.207.80:8000";
+    public static final String ML_SERVER_URL = "http://14.35.207.80:8000";
 
 //    @Autowired
 //    private Interceptor jsonPlaceholderInterceptor;

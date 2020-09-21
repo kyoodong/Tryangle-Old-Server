@@ -23,7 +23,7 @@ public class AdminImageApiController {
     private ResourceLoader resourceLoader;
 
     @PostMapping("insert")
-    private boolean insertImageList(HttpServletRequest request, @RequestParam("imageZip") MultipartFile imageZip)
+    private boolean insertImageList(@RequestParam("imageZip") MultipartFile imageZip)
         throws IOException {
         return imageService.insertImageList(
                 resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",

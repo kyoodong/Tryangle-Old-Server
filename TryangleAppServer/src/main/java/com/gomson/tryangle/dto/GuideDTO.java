@@ -7,7 +7,9 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class GuideDTO {
@@ -65,7 +67,7 @@ public class GuideDTO {
                     JSONObject object = component.getJSONObject("ObjectComponent");
                     ObjectComponent objectComponent;
                     if (object.has("pose")) {
-                        objectComponent = new HumanComponent(
+                        objectComponent = new PersonComponent(
                                 0,
                                 object.getInt("id"),
                                 object.getInt("class"),
@@ -103,5 +105,20 @@ public class GuideDTO {
             count += list.size();
         }
         return count;
+    }
+
+    public Map<Integer, Integer> getObjectClassCount() {
+        Map<Integer, Integer> map = new HashMap<>();
+        for (Component component : componentList) {
+            if (component instanceof ObjectComponent) {
+                ObjectComponent objectComponent = ((ObjectComponent) component);
+                if (map.containsKey(objectComponent.getClazz())) {
+                    map.put(objectComponent.getClazz(), map.get(objectComponent.getClazz()) + 1);
+                } else {
+                    map.put(objectComponent.getClazz(), 1);
+                }
+            }
+        }
+        return map;
     }
 }

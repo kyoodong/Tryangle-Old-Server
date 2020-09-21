@@ -1,3 +1,171 @@
+-- 테이블 순서는 관계를 고려하여 한 번에 실행해도 에러가 발생하지 않게 정렬되었습니다.
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_user
+(
+    `id`  VARCHAR(300)    NOT NULL    COMMENT '사용자 아이디', 
+    PRIMARY KEY (id)
+);
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_image
+(
+    `id`                         INT             NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `url`                        VARCHAR(300)    NOT NULL    COMMENT '이미지 주소', 
+    `author`                     VARCHAR(300)    NOT NULL    COMMENT '촬영자', 
+    `composition_problem_count`  INT             NOT NULL    COMMENT '표준 구도 문제점 개수', 
+    `score`                      INT             NOT NULL    COMMENT '자체 평가 점수', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_image
+    ADD CONSTRAINT FK_tryangle_image_author_tryangle_user_id FOREIGN KEY (author)
+        REFERENCES tryangle.tryangle_user (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_object
+(
+    `id`    INT             NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `name`  VARCHAR(100)    NOT NULL    COMMENT '이름', 
+    PRIMARY KEY (id)
+);
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_image_object
+(
+    `id`         INT      NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `image_id`   INT      NOT NULL    COMMENT '사진 아이디', 
+    `object_id`  INT      NOT NULL    COMMENT '객체 아이디', 
+    `center_x`   FLOAT    NOT NULL    COMMENT '중심점 위치(x)', 
+    `center_y`   FLOAT    NOT NULL    COMMENT '중심점 위치(y)', 
+    `area`       FLOAT    NOT NULL    COMMENT '크기', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_image_object
+    ADD CONSTRAINT FK_tryangle_image_object_image_id_tryangle_image_id FOREIGN KEY (image_id)
+        REFERENCES tryangle.tryangle_image (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE tryangle.tryangle_image_object
+    ADD CONSTRAINT FK_tryangle_image_object_object_id_tryangle_object_id FOREIGN KEY (object_id)
+        REFERENCES tryangle.tryangle_object (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_color
+(
+    `id`     INT    NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `red`    INT    NOT NULL    COMMENT '빨강', 
+    `green`  INT    NOT NULL    COMMENT '초록', 
+    `blue`   INT    NOT NULL    COMMENT '파랑', 
+    PRIMARY KEY (id)
+);
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_pose
+(
+    `id`    INT            NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `name`  VARCHAR(45)    NOT NULL    COMMENT '자세 이름', 
+    PRIMARY KEY (id)
+);
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_image_effective_line
+(
+    `id`        INT      NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `image_id`  INT      NOT NULL    COMMENT '사진 아이디', 
+    `start_x`   FLOAT    NOT NULL    COMMENT '시작점 위치(x)', 
+    `start_y`   FLOAT    NOT NULL    COMMENT '시작점 위치(y)', 
+    `end_x`     FLOAT    NOT NULL    COMMENT '끝점 위치(x)', 
+    `end_y`     FLOAT    NOT NULL    COMMENT '끝점 위치(y)', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_image_effective_line
+    ADD CONSTRAINT FK_tryangle_image_effective_line_image_id_tryangle_image_id FOREIGN KEY (image_id)
+        REFERENCES tryangle.tryangle_image (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_image_dominant_color
+(
+    `id`        INT    NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `image_id`  INT    NOT NULL    COMMENT '이미지 아이디', 
+    `color_id`  INT    NOT NULL    COMMENT '색깔 아이디', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_image_dominant_color
+    ADD CONSTRAINT FK_tryangle_image_dominant_color_image_id_tryangle_image_id FOREIGN KEY (image_id)
+        REFERENCES tryangle.tryangle_image (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE tryangle.tryangle_image_dominant_color
+    ADD CONSTRAINT FK_tryangle_image_dominant_color_color_id_tryangle_color_id FOREIGN KEY (color_id)
+        REFERENCES tryangle.tryangle_color (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_user_image_refer_log
+(
+    `id`        INT             NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `user_id`   VARCHAR(300)    NOT NULL    COMMENT '사용자 아이디', 
+    `image_id`  INT             NOT NULL    COMMENT '사진 아이디', 
+    `count`     INT             NOT NULL    COMMENT '인용 횟수', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_user_image_refer_log
+    ADD CONSTRAINT FK_tryangle_user_image_refer_log_user_id_tryangle_user_id FOREIGN KEY (user_id)
+        REFERENCES tryangle.tryangle_user (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE tryangle.tryangle_user_image_refer_log
+    ADD CONSTRAINT FK_tryangle_user_image_refer_log_image_id_tryangle_image_id FOREIGN KEY (image_id)
+        REFERENCES tryangle.tryangle_image (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_object_person_pose
+(
+    `id`         INT    NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `object_id`  INT    NOT NULL    COMMENT '객체 아이디', 
+    `pose_id`    INT    NOT NULL    COMMENT '포즈 아이디', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_object_person_pose
+    ADD CONSTRAINT FK_tryangle_object_ppoi_tryangle_ioi FOREIGN KEY (object_id)
+        REFERENCES tryangle.tryangle_image_object (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE tryangle.tryangle_object_person_pose
+    ADD CONSTRAINT FK_tryangle_object_person_pose_pose_id_tryangle_pose_id FOREIGN KEY (pose_id)
+        REFERENCES tryangle.tryangle_pose (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_access_token
+(
+    `id`            INT             NOT NULL    AUTO_INCREMENT COMMENT '토큰 아이디', 
+    `token`         VARCHAR(300)    NOT NULL    COMMENT '토큰', 
+    `created_at`    DATETIME        NOT NULL    COMMENT '생성 시간', 
+    `expired_at`    DATETIME        NOT NULL    COMMENT '만료 시간', 
+    `access_count`  INT             NOT NULL    COMMENT 'API 접속 횟수', 
+    `ip`            VARCHAR(45)     NOT NULL    COMMENT '아이피', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_access_token
+    ADD CONSTRAINT UC_token UNIQUE (token);
+
+
+
+
+
+
 INSERT INTO tryangle_object VALUES(0, "BG");
 INSERT INTO tryangle_object VALUES(1, "person");
 INSERT INTO tryangle_object VALUES(2, "bicycle");

@@ -58,4 +58,19 @@
         WHERE id = #{imageId}
     </update>
 
+    <select id="selectImageUrlByObject" resultType="String">
+        SELECT url FROM (
+            SELECT i.*, tio.object_id as object_id, COUNT(tio.object_id) as object_count
+            FROM tryangle_image i
+            JOIN tryangle_image_object tio
+            ON i.id = tio.image_id
+            GROUP BY i.id, tio.object_id
+        ) mi
+        WHERE
+        <foreach collection="objectClassCount" index="key" item="value" separator="OR">
+        (mi.object_id = #{key} AND mi.object_count = #{value})
+        </foreach>
+        GROUP BY url
+    </select>
+
 </mapper>

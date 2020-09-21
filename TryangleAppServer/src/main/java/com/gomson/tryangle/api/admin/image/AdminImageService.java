@@ -86,8 +86,8 @@ public class AdminImageService {
                         } else if (component instanceof LineComponent) {
                             imageDao.insertEffectiveLine(image.getId(), (LineComponent) component);
                         }
-                        if (component instanceof HumanComponent) {
-                            imageDao.insertHumanPose(component.getId(), ((HumanComponent) component).getPose());
+                        if (component instanceof PersonComponent) {
+                            imageDao.insertHumanPose(component.getId(), ((PersonComponent) component).getPose());
                         }
                     }
 
