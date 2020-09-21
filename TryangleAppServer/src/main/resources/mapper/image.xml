@@ -59,18 +59,27 @@
     </update>
 
     <select id="selectImageUrlByObject" resultType="String">
-        SELECT url FROM (
-            SELECT i.*, tio.object_id as object_id, COUNT(tio.object_id) as object_count
-            FROM tryangle_image i
-            JOIN tryangle_image_object tio
-            ON i.id = tio.image_id
-            GROUP BY i.id, tio.object_id
-        ) mi
-        WHERE
-        <foreach collection="objectClassCount" index="key" item="value" separator="OR">
-        (mi.object_id = #{key} AND mi.object_count = #{value})
+        <foreach collection="objectComponentList" item="object" separator="INTERSECT">
+            SELECT i.url FROM tryangle_image i
+            JOIN tryangle_image_object tio on i.id = tio.image_id
+            WHERE tio.object_id = #{object.clazz}
+            AND tio.area BETWEEN #{object.area} - #{areaThreshold} AND #{object.area} + #{areaThreshold}
+            AND tio.center_x BETWEEN #{object.centerPointX} - #{positionThreshold} AND #{object.centerPointX} + #{positionThreshold}
+            AND tio.center_y BETWEEN #{object.centerPointY} - #{positionThreshold} AND #{object.centerPointY} + #{positionThreshold}
         </foreach>
-        GROUP BY url
+    </select>
+
+    <select id="selectImageUrlByPerson" resultType="String">
+        <foreach collection="personComponentList" item="person" separator="INTERSECT">
+            SELECT i.url FROM tryangle_image i
+            JOIN tryangle_image_object tio on i.id = tio.image_id
+            JOIN tryangle_object_person_pose topp on tio.id = topp.object_id
+            WHERE tio.object_id = #{person.clazz}
+            AND tio.area BETWEEN #{person.area} - #{areaThreshold} AND #{person.area} + #{areaThreshold}
+            AND tio.center_x BETWEEN #{person.centerPointX} - #{positionThreshold} AND #{person.centerPointX} + #{positionThreshold}
+            AND tio.center_y BETWEEN #{person.centerPointY} - #{positionThreshold} AND #{person.centerPointY} + #{positionThreshold}
+            AND topp.pose_id = #{person.pose}
+        </foreach>
     </select>
 
 </mapper>

@@ -3,6 +3,7 @@ package com.gomson.tryangle.dao;
 import com.gomson.tryangle.domain.Image;
 import com.gomson.tryangle.domain.LineComponent;
 import com.gomson.tryangle.domain.ObjectComponent;
+import com.gomson.tryangle.domain.PersonComponent;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -24,14 +25,13 @@ public interface ImageDao {
 
     Boolean updateImageScore(int imageId, int score);
 
-    // 객체 수 = 무조건 맞아야함, 크기 = 어느정도, 위치 = 어느정도
+    // 객체 수 = 무조건 맞아야 함, 크기 = 어느 정도, 위치 = 어느 정도
     List<String> selectImageUrlByObject(
-            Map<Integer, Integer> objectClassCount,
             List<ObjectComponent> objectComponentList,
             int areaThreshold,
             int positionThreshold);
 
-    List<String> selectImageUrlByPerson(List<ObjectComponent> objectComponentList,
+    List<String> selectImageUrlByPerson(List<PersonComponent> personComponentList,
                                         int areaThreshold,
                                         int positionThreshold);
 }

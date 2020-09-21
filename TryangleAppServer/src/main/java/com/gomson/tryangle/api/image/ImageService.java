@@ -32,7 +32,7 @@ public class ImageService {
 
     List<String> recommendImage(MultipartFile image) {
         try {
-            List<String> imageUrlList = null;
+            List<String> imageUrlList = new ArrayList<>();
             RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image.getBytes());
             MultipartBody.Part body = MultipartBody.Part.createFormData(
                     "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
@@ -56,7 +56,13 @@ public class ImageService {
             }
 
             if (objectList.size() > 0) {
-                imageUrlList = imageDao.selectImageUrlByObject(guideDTO.getObjectClassCount(), objectList, 5, 50);
+                imageUrlList = imageDao.selectImageUrlByObject(objectList, 5, 50);
+            } else {
+
+            }
+
+            if (personList.size() > 0) {
+                imageUrlList.addAll(imageDao.selectImageUrlByPerson(personList, 5, 50));
             }
             return imageUrlList;
         } catch (IOException e) {
