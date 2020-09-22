@@ -68,4 +68,8 @@ public class ImageService {
             return null;
         }
     }
+
+    List<ObjectComponent> getComponentListByUrl(String url) {
+        return imageDao.selectComponentByUrl(url);
+    }
 }

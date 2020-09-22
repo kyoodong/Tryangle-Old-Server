@@ -84,4 +84,22 @@
         </foreach>
     </select>
 
+    <select id="selectComponentByUrl" resultType="ObjectComponent">
+        SELECT tio.object_id clazz, tio.center_x centerPointX, tio.center_y centerPointY, tio.area area,
+               tio.mask mask, tio.roi roi FROM tryangle_image_object tio
+        JOIN tryangle_image ti on tio.image_id = ti.id
+        WHERE ti.url = #{url}
+    </select>
+
+    <select id="selectUnmaskedImageList" resultType="Image">
+        SELECT ti.* FROM tryangle_image_object tio
+        JOIN tryangle_image ti on tio.image_id = ti.id
+        WHERE JSON_EXTRACT(mask, '$[0]') is null
+    </select>
+
+    <delete id="deleteImage">
+        DELETE FROM tryangle_image
+        WHERE id = #{id}
+    </delete>
+
 </mapper>

@@ -6,7 +6,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,7 @@ import java.util.Map;
 public class AdminImageApiController {
 
     @Autowired
-    private AdminImageService imageService;
+    private AdminImageService adminImageService;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -25,18 +24,23 @@ public class AdminImageApiController {
     @PostMapping("insert")
     private boolean insertImageList(@RequestParam("imageZip") MultipartFile imageZip)
         throws IOException {
-        return imageService.insertImageList(
+        return adminImageService.insertImageList(
                 resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",
                 imageZip);
     }
 
     @GetMapping("{userId}")
     private List<Image> selectUnscoredImageList(@PathVariable String userId) {
-        return imageService.selectUnscoredImageList(userId);
+        return adminImageService.selectUnscoredImageList(userId);
     }
 
     @PostMapping("score")
     private Boolean scoreImage(@RequestBody Map<String, Integer> dto) {
-        return imageService.scoreImage(dto.get("imageId"), dto.get("score"));
+        return adminImageService.scoreImage(dto.get("imageId"), dto.get("score"));
+    }
+
+    @GetMapping("refresh")
+    private Boolean refresh() throws IOException {
+        return adminImageService.refresh(resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/");
     }
 }

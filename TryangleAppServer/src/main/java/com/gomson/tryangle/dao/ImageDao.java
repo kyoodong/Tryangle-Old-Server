@@ -23,7 +23,7 @@ public interface ImageDao {
 
     List<Image> selectUnscoredImageList(String userId);
 
-    Boolean updateImageScore(int imageId, int score);
+    Boolean updateImageScore(@Param("imageId") int imageId, @Param("score") int score);
 
     // 객체 수 = 무조건 맞아야 함, 크기 = 어느 정도, 위치 = 어느 정도
     List<String> selectImageUrlByObject(
@@ -34,4 +34,9 @@ public interface ImageDao {
     List<String> selectImageUrlByPerson(List<PersonComponent> personComponentList,
                                         int areaThreshold,
                                         int positionThreshold);
+
+    List<ObjectComponent> selectComponentByUrl(String url);
+
+    List<Image> selectUnmaskedImageList();
+    void deleteImage(long id);
 }

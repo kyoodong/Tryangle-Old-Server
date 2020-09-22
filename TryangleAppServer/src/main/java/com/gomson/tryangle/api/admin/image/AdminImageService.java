@@ -120,4 +120,55 @@ public class AdminImageService {
         return true;
     }
 
+    @Transactional
+    Boolean refresh(String baseDir) {
+        File file = null;
+        try {
+            List<Image> imageList = imageDao.selectUnmaskedImageList();
+
+            for (Image image : imageList) {
+                file = new File(baseDir, image.getUrl());
+                if (!file.exists()) {
+                    imageDao.deleteImage(image.getId());
+                    continue;
+                }
+
+                RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"),
+                        FileUtils.readFileToByteArray(file));
+                MultipartBody.Part body = MultipartBody.Part.createFormData(
+                        "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
+                Call<JSONObject> call = adminImageRetrofitService.getImageGuide(body);
+                Response<JSONObject> response = call.execute();
+                if (response.isSuccessful()) {
+                    GuideDTO guideDTO = new GuideDTO(response.body());
+                    int guideCount = guideDTO.getCount();
+                    Image newImage = new Image(0, image.getUrl(), image.getAuthor(), guideCount, image.getScore());
+
+                    imageDao.insertImage(newImage);
+                    imageDao.deleteImage(image.getId());
+                    for (Component component : guideDTO.getComponentList()) {
+                        if (component instanceof ObjectComponent) {
+                            imageDao.insertObject(newImage.getId(), (ObjectComponent) component);
+                        } else if (component instanceof LineComponent) {
+                            imageDao.insertEffectiveLine(newImage.getId(), (LineComponent) component);
+                        }
+                        if (component instanceof PersonComponent) {
+                            imageDao.insertHumanPose(component.getId(), ((PersonComponent) component).getPose());
+                        }
+                    }
+
+                    for (int colorId : guideDTO.getDominantColorList()) {
+                        imageDao.insertDominantColor(newImage.getId(), colorId);
+                    }
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            if (file != null)
+                file.deleteOnExit();
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
