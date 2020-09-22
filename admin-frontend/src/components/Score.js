@@ -7,7 +7,7 @@ function LoadingButton(props) {
   const [isLoading, setLoading] = useState(false)
 
   const loadImageList = async (userId) => {
-    axios.get(`${window.springServerBaseUrl}api/image/${userId}`)
+    axios.get(`${window.springServerBaseUrl}api/admin/image/${userId}`)
       .then(({data}) => {
         setLoading(false);
         props.onLoadImage(data)
@@ -44,9 +44,9 @@ class Board extends React.Component {
   render() {
     return (
       <div>
-        <img src={window.springServerBaseUrl + this.props.image.url}/>
+        <img src={window.springServerBaseUrl + this.props.image.url} className="image-score"/>
         <input onKeyPress={this.props.onKeyPress} type="number" value={this.props.image.score}
-               onChange={this.handleOnChange} autoFocus="autoFocus"/>
+               onChange={this.handleOnChange} autoFocus="autoFocus" pattern="\d*"/>
       </div>
     );
   }
@@ -67,9 +67,16 @@ class Score extends React.Component {
 
   handleKeyPress(e) {
     const image = this.state.imageList[this.state.index]
-    image.score = parseInt(e.key)
+    const score = parseInt(e.key)
 
-    axios.post(`${window.springServerBaseUrl}api/image/score`, {
+    if (score < 0 || score > 5) {
+      alert('0~5점 사이만 입력하세요');
+      return;
+    }
+
+    image.score = score
+
+    axios.post(`${window.springServerBaseUrl}api/admin/image/score`, {
       imageId: image.id,
       score: image.score
     }).then(({data}) => {

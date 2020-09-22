@@ -8,12 +8,12 @@ class InsertImage extends React.Component {
   render() {
     return (
       <div className="App">
-        <Form method="post" action={window.springServerBaseUrl + "api/image/insert"}
+        <Form method="post" action={window.springServerBaseUrl + "api/admin/image/insert"}
           encType="multipart/form-data">
           <Form.File
             multiple
-            id="images"
-            name="images"/>
+            id="imageZip"
+            name="imageZip"/>
           <Button variant="primary" type="submit">확인</Button>
         </Form>
       </div>
