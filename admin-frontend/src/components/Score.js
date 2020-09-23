@@ -7,7 +7,7 @@ function LoadingButton(props) {
   const [isLoading, setLoading] = useState(false)
 
   const loadImageList = async (userId) => {
-    axios.get(`${window.springServerBaseUrl}api/admin/image/${userId}`)
+    axios.get(`${process.env.REACT_APP_SPRING_SERVER_URL}api/admin/image/${userId}`)
       .then(({data}) => {
         setLoading(false);
         props.onLoadImage(data)
@@ -38,15 +38,12 @@ function LoadingButton(props) {
 
 class Board extends React.Component {
 
-  handleOnChange(e) {
-  }
-
   render() {
     return (
       <div>
-        <img src={window.springServerBaseUrl + this.props.image.url} className="image-score"/>
-        <input onKeyPress={this.props.onKeyPress} type="number" value={this.props.image.score}
-               onChange={this.handleOnChange} autoFocus="autoFocus" pattern="\d*"/>
+        <img src={process.env.REACT_APP_SPRING_SERVER_URL + this.props.image.url} className="image-score"/>
+        <input type="number" value=""
+               onChange={this.props.onKeyPress} autoFocus="autoFocus" pattern="\d*"/>
       </div>
     );
   }
@@ -61,13 +58,23 @@ class Score extends React.Component {
     this.handleKeyPress = this.handleKeyPress.bind(this)
     this.state = {
       imageList: [],
-      index: 0
+      index: 0,
+      count: 0
     }
+
+    axios.get(`${process.env.REACT_APP_SPRING_SERVER_URL}api/admin/image/score`)
+      .then(({data}) => {
+        this.setState({
+          imageList: this.state.imageList,
+          index: this.state.index,
+          count: data
+        })
+      })
   }
 
   handleKeyPress(e) {
     const image = this.state.imageList[this.state.index]
-    const score = parseInt(e.key)
+    const score = parseInt(e.target.value)
 
     if (score < 0 || score > 5) {
       alert('0~5점 사이만 입력하세요');
@@ -75,15 +82,15 @@ class Score extends React.Component {
     }
 
     image.score = score
-
-    axios.post(`${window.springServerBaseUrl}api/admin/image/score`, {
+    axios.post(`${process.env.REACT_APP_SPRING_SERVER_URL}api/admin/image/score`, {
       imageId: image.id,
       score: image.score
     }).then(({data}) => {
       if (data === true) {
         this.setState({
           imageList: this.state.imageList,
-          index: this.state.index + 1
+          index: this.state.index + 1,
+          count: this.state.count + 1
         })
       }
     }).catch(e => {
@@ -112,6 +119,7 @@ class Score extends React.Component {
       <div className="App">
         <LoadingButton userId={this.userId}
           onLoadImage={this.handleLoadImageList}/>
+        <div>{this.state.count} 개 채점</div>
         {board}
       </div>
     );

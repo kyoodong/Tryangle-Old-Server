@@ -5,14 +5,6 @@ import * as serviceWorker from './serviceWorker';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-window.baseUrl = "http://14.35.207.80:3000/"
-
-// 개발 서버
-window.springServerBaseUrl = "http://14.35.207.80:7776/"
-
-// 실 서버
-// window.springServerBaseUrl = "http://14.35.207.80:7778/"
-
 ReactDOM.render(
   <React.StrictMode>
     <App />
