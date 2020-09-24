@@ -43,4 +43,9 @@ public class AdminImageApiController {
     private Boolean refresh() throws IOException {
         return adminImageService.refresh(resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/");
     }
+
+    @GetMapping("score")
+    private Integer getNumScoredImage() {
+        return adminImageService.getNumScoredImage();
+    }
 }

@@ -52,6 +52,7 @@
         SELECT * FROM tryangle_image
         WHERE author = #{userId}
         AND score = -1
+        LIMIT 15
     </select>
 
     <update id="updateImageScore">
@@ -101,5 +102,10 @@
         DELETE FROM tryangle_image
         WHERE id = #{id}
     </delete>
+
+    <select id="getNumScoredImage" resultType="Integer">
+        SELECT COUNT(*) FROM tryangle_image
+        WHERE score != -1
+    </select>
 
 </mapper>

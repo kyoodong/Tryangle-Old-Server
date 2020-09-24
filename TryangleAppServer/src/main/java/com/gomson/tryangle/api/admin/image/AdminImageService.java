@@ -171,4 +171,8 @@ public class AdminImageService {
         }
     }
 
+    Integer getNumScoredImage() {
+        return imageDao.getNumScoredImage();
+    }
+
 }

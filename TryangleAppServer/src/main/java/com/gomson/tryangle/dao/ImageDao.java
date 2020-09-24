@@ -39,4 +39,6 @@ public interface ImageDao {
 
     List<Image> selectUnmaskedImageList();
     void deleteImage(long id);
+
+    Integer getNumScoredImage();
 }
