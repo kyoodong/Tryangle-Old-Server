@@ -1,0 +1,278 @@
+-- 테이블 순서는 관계를 고려하여 한 번에 실행해도 에러가 발생하지 않게 정렬되었습니다.
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_user
+(
+    `id`  VARCHAR(300)    NOT NULL    COMMENT '사용자 아이디', 
+    PRIMARY KEY (id)
+);
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_image
+(
+    `id`                         INT             NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `url`                        VARCHAR(300)    NOT NULL    COMMENT '이미지 주소', 
+    `author`                     VARCHAR(300)    NOT NULL    COMMENT '촬영자', 
+    `composition_problem_count`  INT             NOT NULL    COMMENT '표준 구도 문제점 개수', 
+    `score`                      INT             NOT NULL    COMMENT '자체 평가 점수', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_image
+    ADD CONSTRAINT FK_tryangle_image_author_tryangle_user_id FOREIGN KEY (author)
+        REFERENCES tryangle.tryangle_user (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_object
+(
+    `id`    INT             NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `name`  VARCHAR(100)    NOT NULL    COMMENT '이름', 
+    PRIMARY KEY (id)
+);
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_image_object
+(
+    `id`         INT      NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `image_id`   INT      NOT NULL    COMMENT '사진 아이디', 
+    `object_id`  INT      NOT NULL    COMMENT '객체 아이디', 
+    `center_x`   FLOAT    NOT NULL    COMMENT '중심점 위치(x)', 
+    `center_y`   FLOAT    NOT NULL    COMMENT '중심점 위치(y)', 
+    `area`       FLOAT    NOT NULL    COMMENT '크기', 
+    `mask`       JSON     NOT NULL    COMMENT '마스크이미지 json array',
+    `roi`        JSON     NOT NULL    COMMENT 'roi json array',
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_image_object
+    ADD CONSTRAINT FK_tryangle_image_object_image_id_tryangle_image_id FOREIGN KEY (image_id)
+        REFERENCES tryangle.tryangle_image (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE tryangle.tryangle_image_object
+    ADD CONSTRAINT FK_tryangle_image_object_object_id_tryangle_object_id FOREIGN KEY (object_id)
+        REFERENCES tryangle.tryangle_object (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_color
+(
+    `id`     INT    NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `red`    INT    NOT NULL    COMMENT '빨강', 
+    `green`  INT    NOT NULL    COMMENT '초록', 
+    `blue`   INT    NOT NULL    COMMENT '파랑', 
+    PRIMARY KEY (id)
+);
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_pose
+(
+    `id`    INT            NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `name`  VARCHAR(45)    NOT NULL    COMMENT '자세 이름', 
+    PRIMARY KEY (id)
+);
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_image_effective_line
+(
+    `id`        INT      NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `image_id`  INT      NOT NULL    COMMENT '사진 아이디', 
+    `start_x`   FLOAT    NOT NULL    COMMENT '시작점 위치(x)', 
+    `start_y`   FLOAT    NOT NULL    COMMENT '시작점 위치(y)', 
+    `end_x`     FLOAT    NOT NULL    COMMENT '끝점 위치(x)', 
+    `end_y`     FLOAT    NOT NULL    COMMENT '끝점 위치(y)', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_image_effective_line
+    ADD CONSTRAINT FK_tryangle_image_effective_line_image_id_tryangle_image_id FOREIGN KEY (image_id)
+        REFERENCES tryangle.tryangle_image (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_image_dominant_color
+(
+    `id`        INT    NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `image_id`  INT    NOT NULL    COMMENT '이미지 아이디', 
+    `color_id`  INT    NOT NULL    COMMENT '색깔 아이디', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_image_dominant_color
+    ADD CONSTRAINT FK_tryangle_image_dominant_color_image_id_tryangle_image_id FOREIGN KEY (image_id)
+        REFERENCES tryangle.tryangle_image (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE tryangle.tryangle_image_dominant_color
+    ADD CONSTRAINT FK_tryangle_image_dominant_color_color_id_tryangle_color_id FOREIGN KEY (color_id)
+        REFERENCES tryangle.tryangle_color (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_user_image_refer_log
+(
+    `id`        INT             NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `user_id`   VARCHAR(300)    NOT NULL    COMMENT '사용자 아이디', 
+    `image_id`  INT             NOT NULL    COMMENT '사진 아이디', 
+    `count`     INT             NOT NULL    COMMENT '인용 횟수', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_user_image_refer_log
+    ADD CONSTRAINT FK_tryangle_user_image_refer_log_user_id_tryangle_user_id FOREIGN KEY (user_id)
+        REFERENCES tryangle.tryangle_user (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE tryangle.tryangle_user_image_refer_log
+    ADD CONSTRAINT FK_tryangle_user_image_refer_log_image_id_tryangle_image_id FOREIGN KEY (image_id)
+        REFERENCES tryangle.tryangle_image (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_object_person_pose
+(
+    `id`         INT    NOT NULL    AUTO_INCREMENT COMMENT '아이디', 
+    `object_id`  INT    NOT NULL    COMMENT '객체 아이디', 
+    `pose_id`    INT    NOT NULL    COMMENT '포즈 아이디', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_object_person_pose
+    ADD CONSTRAINT FK_tryangle_object_ppoi_tryangle_ioi FOREIGN KEY (object_id)
+        REFERENCES tryangle.tryangle_image_object (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE tryangle.tryangle_object_person_pose
+    ADD CONSTRAINT FK_tryangle_object_person_pose_pose_id_tryangle_pose_id FOREIGN KEY (pose_id)
+        REFERENCES tryangle.tryangle_pose (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- tryangle_user Table Create SQL
+CREATE TABLE tryangle.tryangle_access_token
+(
+    `id`            INT             NOT NULL    AUTO_INCREMENT COMMENT '토큰 아이디', 
+    `token`         VARCHAR(300)    NOT NULL    COMMENT '토큰', 
+    `created_at`    DATETIME        NOT NULL    COMMENT '생성 시간', 
+    `expired_at`    DATETIME        NOT NULL    COMMENT '만료 시간', 
+    `access_count`  INT             NOT NULL    COMMENT 'API 접속 횟수', 
+    `ip`            VARCHAR(45)     NOT NULL    COMMENT '아이피', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE tryangle.tryangle_access_token
+    ADD CONSTRAINT UC_token UNIQUE (token);
+
+
+
+
+
+
+INSERT INTO tryangle_object VALUES(0, "BG");
+INSERT INTO tryangle_object VALUES(1, "person");
+INSERT INTO tryangle_object VALUES(2, "bicycle");
+INSERT INTO tryangle_object VALUES(3, "car");
+INSERT INTO tryangle_object VALUES(4, "motorcycle");
+INSERT INTO tryangle_object VALUES(5, "airplane");
+INSERT INTO tryangle_object VALUES(6, "bus");
+INSERT INTO tryangle_object VALUES(7, "train");
+INSERT INTO tryangle_object VALUES(8, "truck");
+INSERT INTO tryangle_object VALUES(9, "boat");
+INSERT INTO tryangle_object VALUES(10, "traffic light");
+INSERT INTO tryangle_object VALUES(11, "fire hydrant");
+INSERT INTO tryangle_object VALUES(12, "stop sign");
+INSERT INTO tryangle_object VALUES(13, "parking meter");
+INSERT INTO tryangle_object VALUES(14, "bench");
+INSERT INTO tryangle_object VALUES(15, "bird");
+INSERT INTO tryangle_object VALUES(16, "cat");
+INSERT INTO tryangle_object VALUES(17, "dog");
+INSERT INTO tryangle_object VALUES(18, "horse");
+INSERT INTO tryangle_object VALUES(19, "sheep");
+INSERT INTO tryangle_object VALUES(20, "cow");
+INSERT INTO tryangle_object VALUES(21, "elephant");
+INSERT INTO tryangle_object VALUES(22, "bear");
+INSERT INTO tryangle_object VALUES(23, "zebra");
+INSERT INTO tryangle_object VALUES(24, "giraffe");
+INSERT INTO tryangle_object VALUES(25, "backpack");
+INSERT INTO tryangle_object VALUES(26, "umbrella");
+INSERT INTO tryangle_object VALUES(27, "handbag");
+INSERT INTO tryangle_object VALUES(28, "tie");
+INSERT INTO tryangle_object VALUES(29, "suitcase");
+INSERT INTO tryangle_object VALUES(30, "frisbee");
+INSERT INTO tryangle_object VALUES(31, "skis");
+INSERT INTO tryangle_object VALUES(32, "snowboard");
+INSERT INTO tryangle_object VALUES(33, "sports ball");
+INSERT INTO tryangle_object VALUES(34, "kite");
+INSERT INTO tryangle_object VALUES(35, "baseball bat");
+INSERT INTO tryangle_object VALUES(36, "baseball glove");
+INSERT INTO tryangle_object VALUES(37, "skateboard");
+INSERT INTO tryangle_object VALUES(38, "surfboard");
+INSERT INTO tryangle_object VALUES(39, "tennis racket");
+INSERT INTO tryangle_object VALUES(40, "bottle");
+INSERT INTO tryangle_object VALUES(41, "wine glass");
+INSERT INTO tryangle_object VALUES(42, "cup");
+INSERT INTO tryangle_object VALUES(43, "fork");
+INSERT INTO tryangle_object VALUES(44, "knife");
+INSERT INTO tryangle_object VALUES(45, "spoon");
+INSERT INTO tryangle_object VALUES(46, "bowl");
+INSERT INTO tryangle_object VALUES(47, "banana");
+INSERT INTO tryangle_object VALUES(48, "apple");
+INSERT INTO tryangle_object VALUES(49, "sandwich");
+INSERT INTO tryangle_object VALUES(50, "orange");
+INSERT INTO tryangle_object VALUES(51, "broccoli");
+INSERT INTO tryangle_object VALUES(52, "carrot");
+INSERT INTO tryangle_object VALUES(53, "hot dog");
+INSERT INTO tryangle_object VALUES(54, "pizza");
+INSERT INTO tryangle_object VALUES(55, "donut");
+INSERT INTO tryangle_object VALUES(56, "cake");
+INSERT INTO tryangle_object VALUES(57, "chair");
+INSERT INTO tryangle_object VALUES(58, "couch");
+INSERT INTO tryangle_object VALUES(59, "potted plant");
+INSERT INTO tryangle_object VALUES(60, "bed");
+INSERT INTO tryangle_object VALUES(61, "dining table");
+INSERT INTO tryangle_object VALUES(62, "toilet");
+INSERT INTO tryangle_object VALUES(63, "tv");
+INSERT INTO tryangle_object VALUES(64, "laptop");
+INSERT INTO tryangle_object VALUES(65, "mouse");
+INSERT INTO tryangle_object VALUES(66, "remote");
+INSERT INTO tryangle_object VALUES(67, "keyboard");
+INSERT INTO tryangle_object VALUES(68, "cell phone");
+INSERT INTO tryangle_object VALUES(69, "microwave");
+INSERT INTO tryangle_object VALUES(70, "oven");
+INSERT INTO tryangle_object VALUES(71, "toaster");
+INSERT INTO tryangle_object VALUES(72, "sink");
+INSERT INTO tryangle_object VALUES(73, "refrigerator");
+INSERT INTO tryangle_object VALUES(74, "book");
+INSERT INTO tryangle_object VALUES(75, "clock");
+INSERT INTO tryangle_object VALUES(76, "vase");
+INSERT INTO tryangle_object VALUES(77, "scissors");
+INSERT INTO tryangle_object VALUES(78, "teddy bear");
+INSERT INTO tryangle_object VALUES(79, "hair drier");
+INSERT INTO tryangle_object VALUES(80, "toothbrush");
+INSERT INTO tryangle_object VALUES(81, "sky");
+INSERT INTO tryangle_object VALUES(82, "sea");
+INSERT INTO tryangle_object VALUES(83, "ground");
+
+
+INSERT INTO tryangle_color VALUES(0, 246, 239, 30);
+INSERT INTO tryangle_color VALUES(1, 249, 197, 14);
+INSERT INTO tryangle_color VALUES(2, 244, 125, 25);
+INSERT INTO tryangle_color VALUES(3, 233, 62, 29);
+INSERT INTO tryangle_color VALUES(4, 229, 0, 29);
+INSERT INTO tryangle_color VALUES(5, 253, 181, 211);
+INSERT INTO tryangle_color VALUES(6, 139, 41, 134);
+INSERT INTO tryangle_color VALUES(7, 100, 27, 128);
+INSERT INTO tryangle_color VALUES(8, 81, 69, 152);
+INSERT INTO tryangle_color VALUES(9, 49, 80, 162);
+INSERT INTO tryangle_color VALUES(10, 135, 198, 228);
+INSERT INTO tryangle_color VALUES(11, 28, 128, 107);
+INSERT INTO tryangle_color VALUES(12, 45, 170, 64);
+INSERT INTO tryangle_color VALUES(13, 127, 191, 51);
+INSERT INTO tryangle_color VALUES(14, 255, 255, 255);
+INSERT INTO tryangle_color VALUES(15, 186, 186, 186);
+INSERT INTO tryangle_color VALUES(16, 125, 69, 36);
+INSERT INTO tryangle_color VALUES(17, 0, 0, 0);
+
+INSERT INTO tryangle_pose VALUES(0, 'Unknown');
+INSERT INTO tryangle_pose VALUES(1, 'Stand');
+INSERT INTO tryangle_pose VALUES(2, 'Sit');

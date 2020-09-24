@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gomson.tryangle.dao.ImageDao">
+
+    <insert id="insertImage" parameterType="Image" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tryangle_image VALUES (
+            0, #{url}, #{author}, #{compositionProblemCount}, #{score}
+        )
+    </insert>
+
+    <insert id="insertObject" parameterType="ObjectComponent" useGeneratedKeys="true" keyProperty="objectComponent.id">
+        INSERT INTO tryangle_image_object VALUES (
+            0,
+            #{imageId},
+            #{objectComponent.clazz},
+            #{objectComponent.centerPointX},
+            #{objectComponent.centerPointY},
+            #{objectComponent.area},
+            #{objectComponent.mask},
+            #{objectComponent.roi}
+        )
+    </insert>
+
+    <insert id="insertEffectiveLine" parameterType="LineComponent" useGeneratedKeys="true" keyProperty="lineComponent.id">
+        INSERT INTO tryangle_image_effective_line VALUES (
+            0,
+            #{imageId},
+            #{lineComponent.startX},
+            #{lineComponent.startY},
+            #{lineComponent.endX},
+            #{lineComponent.endY}
+        )
+    </insert>
+
+    <insert id="insertDominantColor">
+        INSERT INTO tryangle_image_dominant_color VALUES (
+            0,
+            #{imageId},
+            #{colorId}
+        )
+    </insert>
+
+    <insert id="insertHumanPose">
+        INSERT INTO tryangle_object_person_pose VALUES (
+            0, #{objectId}, #{poseId}
+        )
+    </insert>
+
+    <select id="selectUnscoredImageList" resultType="Image">
+        SELECT * FROM tryangle_image
+        WHERE author = #{userId}
+        AND score = -1
+        LIMIT 15
+    </select>
+
+    <update id="updateImageScore">
+        UPDATE tryangle_image SET
+        score = #{score}
+        WHERE id = #{imageId}
+    </update>
+
+    <select id="selectImageUrlByObject" resultType="String">
+        <foreach collection="objectComponentList" item="object" separator="INTERSECT">
+            SELECT i.url FROM tryangle_image i
+            JOIN tryangle_image_object tio on i.id = tio.image_id
+            WHERE tio.object_id = #{object.clazz}
+            AND tio.area BETWEEN #{object.area} - #{areaThreshold} AND #{object.area} + #{areaThreshold}
+            AND tio.center_x BETWEEN #{object.centerPointX} - #{positionThreshold} AND #{object.centerPointX} + #{positionThreshold}
+            AND tio.center_y BETWEEN #{object.centerPointY} - #{positionThreshold} AND #{object.centerPointY} + #{positionThreshold}
+        </foreach>
+    </select>
+
+    <select id="selectImageUrlByPerson" resultType="String">
+        <foreach collection="personComponentList" item="person" separator="INTERSECT">
+            SELECT i.url FROM tryangle_image i
+            JOIN tryangle_image_object tio on i.id = tio.image_id
+            JOIN tryangle_object_person_pose topp on tio.id = topp.object_id
+            WHERE tio.object_id = #{person.clazz}
+            AND tio.area BETWEEN #{person.area} - #{areaThreshold} AND #{person.area} + #{areaThreshold}
+            AND tio.center_x BETWEEN #{person.centerPointX} - #{positionThreshold} AND #{person.centerPointX} + #{positionThreshold}
+            AND tio.center_y BETWEEN #{person.centerPointY} - #{positionThreshold} AND #{person.centerPointY} + #{positionThreshold}
+            AND topp.pose_id = #{person.pose}
+        </foreach>
+    </select>
+
+    <select id="selectComponentByUrl" resultType="ObjectComponent">
+        SELECT tio.object_id clazz, tio.center_x centerPointX, tio.center_y centerPointY, tio.area area,
+               tio.mask mask, tio.roi roi FROM tryangle_image_object tio
+        JOIN tryangle_image ti on tio.image_id = ti.id
+        WHERE ti.url = #{url}
+    </select>
+
+    <select id="selectUnmaskedImageList" resultType="Image">
+        SELECT ti.* FROM tryangle_image_object tio
+        JOIN tryangle_image ti on tio.image_id = ti.id
+        WHERE JSON_EXTRACT(mask, '$[0]') is null
+    </select>
+
+    <delete id="deleteImage">
+        DELETE FROM tryangle_image
+        WHERE id = #{id}
+    </delete>
+
+    <select id="getNumScoredImage" resultType="Integer">
+        SELECT COUNT(*) FROM tryangle_image
+        WHERE score != -1
+    </select>
+
+</mapper>

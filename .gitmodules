@@ -1,0 +1,3 @@
+[submodule "MLServer/gomson"]
+	path = MLServer/gomson
+	url = git@git.swmgit.org:swmaestro/gomson.git
