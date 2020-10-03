@@ -1,15 +1,16 @@
 package com.gomson.tryangle.api.image;
 
-import com.gomson.tryangle.api.admin.image.AdminImageRetrofitService;
 import com.gomson.tryangle.dao.ImageDao;
 import com.gomson.tryangle.domain.Component;
 import com.gomson.tryangle.domain.PersonComponent;
 import com.gomson.tryangle.domain.ObjectComponent;
 import com.gomson.tryangle.dto.GuideDTO;
+import com.gomson.tryangle.dto.GuideImageListDTO;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,16 +28,35 @@ public class ImageService {
     private ImageDao imageDao;
 
     @Autowired
-    private AdminImageRetrofitService adminImageRetrofitService;
+    private ImageRetrofitService imageRetrofitService;
 
+    List<ObjectComponent> imageSegmentation(MultipartFile image) throws Exception {
+        List<String> imageUrlList = new ArrayList<>();
+        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image.getBytes());
+        MultipartBody.Part body = MultipartBody.Part.createFormData(
+                "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
+        Call<JSONObject> call = imageRetrofitService.segmentImage(body);
+        Response<JSONObject> response = call.execute();
 
-    List<String> recommendImage(MultipartFile image) {
+        if (!response.isSuccessful())
+            return null;
+
+        List<ObjectComponent> objectComponentList = new ArrayList<>();
+        JSONArray result = response.body().getJSONArray("result");
+        for (int i = 0; i < result.length(); i++) {
+            JSONObject json = result.getJSONObject(i);
+            objectComponentList.add(new ObjectComponent(json));
+        }
+        return objectComponentList;
+    }
+
+    GuideImageListDTO recommendImage(MultipartFile image) {
         try {
             List<String> imageUrlList = new ArrayList<>();
             RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image.getBytes());
             MultipartBody.Part body = MultipartBody.Part.createFormData(
                     "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
-            Call<JSONObject> call = adminImageRetrofitService.getImageGuide(body);
+            Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
             Response<JSONObject> response = call.execute();
             if (!response.isSuccessful())
                 return null;
@@ -62,7 +82,7 @@ public class ImageService {
             if (personList.size() > 0) {
                 imageUrlList.addAll(imageDao.selectImageUrlByPerson(personList, 5, 50));
             }
-            return imageUrlList;
+            return new GuideImageListDTO(guideDTO, imageUrlList);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

@@ -1,5 +1,6 @@
 package com.gomson.tryangle.api.admin.image;
 
+import com.gomson.tryangle.api.image.ImageRetrofitService;
 import com.gomson.tryangle.dao.ImageDao;
 import com.gomson.tryangle.domain.*;
 import com.gomson.tryangle.dto.GuideDTO;
@@ -28,7 +29,7 @@ public class AdminImageService {
     private ImageDao imageDao;
 
     @Autowired
-    private AdminImageRetrofitService adminImageRetrofitService;
+    private ImageRetrofitService imageRetrofitService;
 
     @Transactional
     boolean insertImageList(String baseDirPath, MultipartFile imageZip) {
@@ -75,7 +76,7 @@ public class AdminImageService {
                         FileUtils.readFileToByteArray(file));
                 MultipartBody.Part body = MultipartBody.Part.createFormData(
                         "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
-                Call<JSONObject> call = adminImageRetrofitService.getImageGuide(body);
+                Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
                 Response<JSONObject> response = call.execute();
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
@@ -137,7 +138,7 @@ public class AdminImageService {
                         FileUtils.readFileToByteArray(file));
                 MultipartBody.Part body = MultipartBody.Part.createFormData(
                         "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
-                Call<JSONObject> call = adminImageRetrofitService.getImageGuide(body);
+                Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
                 Response<JSONObject> response = call.execute();
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());

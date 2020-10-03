@@ -3,6 +3,7 @@ package com.gomson.tryangle.domain;
 import lombok.Getter;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,18 @@ public class ObjectComponent extends Component {
         setRoi(roi);
     }
 
+    public ObjectComponent(JSONObject json) {
+        super(0, 0);
+
+        try {
+            this.clazz = json.getInt("class_ids");
+            setMask(json.getString("mask"));
+            setRoi(json.getString("rois"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setMask(String mask) {
         this.mask = mask;
 
@@ -40,7 +53,13 @@ public class ObjectComponent extends Component {
                 JSONArray arr = array.getJSONArray(i);
                 this.maskList.add(new ArrayList<>());
                 for (int j = 0; j < arr.length(); j++) {
-                    this.maskList.get(i).add(arr.getInt(i));
+                    Object obj = arr.get(i);
+                    if (obj instanceof Integer) {
+                        this.maskList.get(i).add((Integer) obj);
+                    } else {
+                        Boolean b = (Boolean) obj;
+                        this.maskList.get(i).add(b ? 1 : 0);
+                    }
                 }
             }
         } catch (JSONException e) {
