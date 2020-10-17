@@ -1,6 +1,10 @@
 package com.gomson.tryangle.dto;
 
 import com.gomson.tryangle.domain.*;
+import com.gomson.tryangle.domain.component.Component;
+import com.gomson.tryangle.domain.component.LineComponent;
+import com.gomson.tryangle.domain.component.ObjectComponent;
+import com.gomson.tryangle.domain.component.PersonComponent;
 import lombok.Getter;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -13,6 +17,26 @@ import java.util.Map;
 
 @Getter
 public class GuideDTO {
+
+    private static final String[] BodyPart = {
+        "NOSE",
+        "LEFT_EYE",
+        "RIGHT_EYE",
+        "LEFT_EAR",
+        "RIGHT_EAR",
+        "LEFT_SHOULDER",
+        "RIGHT_SHOULDER",
+        "LEFT_ELBOW",
+        "RIGHT_ELBOW",
+        "LEFT_WRIST",
+        "RIGHT_WRIST",
+        "LEFT_HIP",
+        "RIGHT_HIP",
+        "LEFT_KNEE",
+        "RIGHT_KNEE",
+        "LEFT_ANKLE",
+        "RIGHT_ANKLE"
+    };
 
     private List<List<Guide>> guideList;
     private List<Component> componentList;
@@ -61,7 +85,9 @@ public class GuideDTO {
                     int startY = linePointArray.getInt(1);
                     int endX = linePointArray.getInt(2);
                     int endY = linePointArray.getInt(3);
-                    componentList.add(new LineComponent(0, line.getInt("id"), startX, startY, endX, endY));
+                    componentList.add(new LineComponent(0, line.getInt("id"),
+                            new Point(startX, startY),
+                            new Point(endX, endY)));
 
                 } else if (component.has("ObjectComponent")) {
                     JSONObject object = component.getJSONObject("ObjectComponent");
@@ -81,24 +107,37 @@ public class GuideDTO {
 
                     if (object.has("pose")) {
                         int pose = object.getInt("pose");
+                        Map<String, Point> posePoints = new HashMap<>();
+
+                        JSONArray posePointArray = object.getJSONArray("pose_points");
+                        for (int j = 0; j < posePointArray.length(); j++) {
+                            if (posePointArray.getString(j).equals("None")) {
+                                posePoints.put(BodyPart[j], new Point(-1, -1));
+                                continue;
+                            }
+
+                            int x = posePointArray.getJSONArray(j).getInt(0);
+                            int y = posePointArray.getJSONArray(j).getInt(1);
+                            posePoints.put(BodyPart[j], new Point(x, y));
+                        }
+
                         objectComponent = new PersonComponent(
                                 0,
                                 id,
                                 clazz,
-                                centerPointX,
-                                centerPointY,
+                                new Point(centerPointX, centerPointY),
                                 (float) (imageWidth * imageHeight) / area,
                                 mask,
                                 roi,
-                                pose
+                                pose,
+                                posePoints
                         );
                     } else {
                         objectComponent = new ObjectComponent(
                                 0,
                                 id,
                                 clazz,
-                                centerPointX,
-                                centerPointY,
+                                new Point(centerPointX, centerPointY),
                                 (float) (imageWidth * imageHeight) / area,
                                 mask,
                                 roi

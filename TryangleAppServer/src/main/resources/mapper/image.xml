@@ -15,11 +15,11 @@
             0,
             #{imageId},
             #{objectComponent.clazz},
-            #{objectComponent.centerPointX},
-            #{objectComponent.centerPointY},
+            #{objectComponent.centerPoint.x},
+            #{objectComponent.centerPoint.y},
             #{objectComponent.area},
-            #{objectComponent.mask},
-            #{objectComponent.roi}
+            #{objectComponent.maskStr},
+            #{objectComponent.roiStr}
         )
     </insert>
 
@@ -27,10 +27,10 @@
         INSERT INTO tryangle_image_effective_line VALUES (
             0,
             #{imageId},
-            #{lineComponent.startX},
-            #{lineComponent.startY},
-            #{lineComponent.endX},
-            #{lineComponent.endY}
+            #{lineComponent.start.x},
+            #{lineComponent.start.y},
+            #{lineComponent.end.x},
+            #{lineComponent.end.y}
         )
     </insert>
 
@@ -44,7 +44,41 @@
 
     <insert id="insertHumanPose">
         INSERT INTO tryangle_object_person_pose VALUES (
-            0, #{objectId}, #{poseId}
+            0, #{objectId}, #{poseId},
+            #{posePoints.NOSE.x},
+            #{posePoints.NOSE.y},
+            #{posePoints.LEFT_EYE.x},
+            #{posePoints.LEFT_EYE.y},
+            #{posePoints.RIGHT_EYE.x},
+            #{posePoints.RIGHT_EYE.y},
+            #{posePoints.LEFT_EAR.x},
+            #{posePoints.LEFT_EAR.y},
+            #{posePoints.RIGHT_EAR.x},
+            #{posePoints.RIGHT_EAR.y},
+            #{posePoints.LEFT_SHOULDER.x},
+            #{posePoints.LEFT_SHOULDER.y},
+            #{posePoints.RIGHT_SHOULDER.x},
+            #{posePoints.RIGHT_SHOULDER.y},
+            #{posePoints.LEFT_ELBOW.x},
+            #{posePoints.LEFT_ELBOW.y},
+            #{posePoints.RIGHT_ELBOW.x},
+            #{posePoints.RIGHT_ELBOW.y},
+            #{posePoints.LEFT_WRIST.x},
+            #{posePoints.LEFT_WRIST.y},
+            #{posePoints.RIGHT_WRIST.x},
+            #{posePoints.RIGHT_WRIST.y},
+            #{posePoints.LEFT_HIP.x},
+            #{posePoints.LEFT_HIP.y},
+            #{posePoints.RIGHT_HIP.x},
+            #{posePoints.RIGHT_HIP.y},
+            #{posePoints.LEFT_KNEE.x},
+            #{posePoints.LEFT_KNEE.y},
+            #{posePoints.RIGHT_KNEE.x},
+            #{posePoints.RIGHT_KNEE.y},
+            #{posePoints.LEFT_ANKLE.x},
+            #{posePoints.LEFT_ANKLE.y},
+            #{posePoints.RIGHT_ANKLE.x},
+            #{posePoints.RIGHT_ANKLE.y}
         )
     </insert>
 
@@ -61,15 +95,21 @@
         WHERE id = #{imageId}
     </update>
 
-    <select id="selectImageUrlByObject" resultType="String">
+    <select id="selectImageUrlByObjects" resultType="String">
         <foreach collection="objectComponentList" item="object" separator="INTERSECT">
             SELECT i.url FROM tryangle_image i
             JOIN tryangle_image_object tio on i.id = tio.image_id
             WHERE tio.object_id = #{object.clazz}
             AND tio.area BETWEEN #{object.area} - #{areaThreshold} AND #{object.area} + #{areaThreshold}
-            AND tio.center_x BETWEEN #{object.centerPointX} - #{positionThreshold} AND #{object.centerPointX} + #{positionThreshold}
-            AND tio.center_y BETWEEN #{object.centerPointY} - #{positionThreshold} AND #{object.centerPointY} + #{positionThreshold}
+            AND tio.center_x BETWEEN #{object.centerPoint.x} - #{positionThreshold} AND #{object.centerPoint.x} + #{positionThreshold}
+            AND tio.center_y BETWEEN #{object.centerPoint.y} - #{positionThreshold} AND #{object.centerPoint.y} + #{positionThreshold}
         </foreach>
+    </select>
+
+    <select id="selectImageUrlByObject" resultType="Image">
+        SELECT i.* FROM tryangle_image i
+        JOIN tryangle_image_object tio on i.id = tio.image_id
+        WHERE tio.object_id = #{objectId}
     </select>
 
     <select id="selectImageUrlByPerson" resultType="String">
@@ -79,14 +119,14 @@
             JOIN tryangle_object_person_pose topp on tio.id = topp.object_id
             WHERE tio.object_id = #{person.clazz}
             AND tio.area BETWEEN #{person.area} - #{areaThreshold} AND #{person.area} + #{areaThreshold}
-            AND tio.center_x BETWEEN #{person.centerPointX} - #{positionThreshold} AND #{person.centerPointX} + #{positionThreshold}
-            AND tio.center_y BETWEEN #{person.centerPointY} - #{positionThreshold} AND #{person.centerPointY} + #{positionThreshold}
+            AND tio.center_x BETWEEN #{person.centerPoint.x} - #{positionThreshold} AND #{person.centerPoint.x} + #{positionThreshold}
+            AND tio.center_y BETWEEN #{person.centerPoint.y} - #{positionThreshold} AND #{person.centerPoint.y} + #{positionThreshold}
             AND topp.pose_id = #{person.pose}
         </foreach>
     </select>
 
     <select id="selectComponentByUrl" resultType="ObjectComponent">
-        SELECT tio.object_id clazz, tio.center_x centerPointX, tio.center_y centerPointY, tio.area area,
+        SELECT tio.object_id clazz, tio.center_x centerPoint.x, tio.center_y centerPoint.y, tio.area area,
                tio.mask mask, tio.roi roi FROM tryangle_image_object tio
         JOIN tryangle_image ti on tio.image_id = ti.id
         WHERE ti.url = #{url}
@@ -96,6 +136,11 @@
         SELECT ti.* FROM tryangle_image_object tio
         JOIN tryangle_image ti on tio.image_id = ti.id
         WHERE JSON_EXTRACT(mask, '$[0]') is null
+    </select>
+
+    <select id="selectAllImageList" resultType="Image">
+        SELECT ti.* FROM tryangle_image_object tio
+        JOIN tryangle_image ti on tio.image_id = ti.id
     </select>
 
     <delete id="deleteImage">

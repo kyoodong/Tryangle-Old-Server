@@ -1,9 +1,10 @@
 package com.gomson.tryangle.dao;
 
 import com.gomson.tryangle.domain.Image;
-import com.gomson.tryangle.domain.LineComponent;
-import com.gomson.tryangle.domain.ObjectComponent;
-import com.gomson.tryangle.domain.PersonComponent;
+import com.gomson.tryangle.domain.Point;
+import com.gomson.tryangle.domain.component.LineComponent;
+import com.gomson.tryangle.domain.component.ObjectComponent;
+import com.gomson.tryangle.domain.component.PersonComponent;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -19,17 +20,22 @@ public interface ImageDao {
     void insertObject(@Param("imageId") long imageId, @Param("objectComponent") ObjectComponent objectComponent);
     void insertEffectiveLine(@Param("imageId") long imageId, @Param("lineComponent") LineComponent lineComponent);
     void insertDominantColor(@Param("imageId") long imageId, @Param("colorId") long colorId);
-    void insertHumanPose(@Param("objectId") long objectId, @Param("poseId") int poseId);
+    void insertHumanPose(
+            @Param("objectId") long objectId,
+            @Param("poseId") int poseId,
+            @Param("posePoints") Map<String, Point> posePoints);
 
     List<Image> selectUnscoredImageList(String userId);
 
     Boolean updateImageScore(@Param("imageId") int imageId, @Param("score") int score);
 
     // 객체 수 = 무조건 맞아야 함, 크기 = 어느 정도, 위치 = 어느 정도
-    List<String> selectImageUrlByObject(
+    List<String> selectImageUrlByObjects(
             List<ObjectComponent> objectComponentList,
             int areaThreshold,
             int positionThreshold);
+
+    List<Image> selectImageUrlByObject(int objectId);
 
     List<String> selectImageUrlByPerson(List<PersonComponent> personComponentList,
                                         int areaThreshold,
@@ -38,6 +44,7 @@ public interface ImageDao {
     List<ObjectComponent> selectComponentByUrl(String url);
 
     List<Image> selectUnmaskedImageList();
+    List<Image> selectAllImageList();
     void deleteImage(long id);
 
     Integer getNumScoredImage();

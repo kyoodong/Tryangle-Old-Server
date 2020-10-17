@@ -1,6 +1,6 @@
 package com.gomson.tryangle.api.image;
 
-import com.gomson.tryangle.domain.ObjectComponent;
+import com.gomson.tryangle.domain.component.ObjectComponent;
 import com.gomson.tryangle.dto.GuideImageListDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,8 +11,7 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("api/image")
-public class
-ImageApiController {
+public class ImageApiController {
 
     @Autowired
     private ImageService imageService;
@@ -31,7 +30,7 @@ ImageApiController {
     @PostMapping("segmentation")
     private List<ObjectComponent> imageSegmentation(@RequestParam("image") MultipartFile image)
         throws Exception{
-        return imageService.imageSegmentation(image);
+        return imageService.imageSegmentation(image.getBytes());
     }
 
     /**

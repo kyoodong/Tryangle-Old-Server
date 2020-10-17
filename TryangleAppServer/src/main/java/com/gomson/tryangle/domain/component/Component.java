@@ -1,4 +1,4 @@
-package com.gomson.tryangle.domain;
+package com.gomson.tryangle.domain.component;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

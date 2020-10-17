@@ -1,9 +1,9 @@
 package com.gomson.tryangle.api.image;
 
 import com.gomson.tryangle.dao.ImageDao;
-import com.gomson.tryangle.domain.Component;
-import com.gomson.tryangle.domain.PersonComponent;
-import com.gomson.tryangle.domain.ObjectComponent;
+import com.gomson.tryangle.domain.component.Component;
+import com.gomson.tryangle.domain.component.PersonComponent;
+import com.gomson.tryangle.domain.component.ObjectComponent;
 import com.gomson.tryangle.dto.GuideDTO;
 import com.gomson.tryangle.dto.GuideImageListDTO;
 import okhttp3.MediaType;
@@ -11,6 +11,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,9 +31,8 @@ public class ImageService {
     @Autowired
     private ImageRetrofitService imageRetrofitService;
 
-    List<ObjectComponent> imageSegmentation(MultipartFile image) throws Exception {
-        List<String> imageUrlList = new ArrayList<>();
-        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image.getBytes());
+    public List<ObjectComponent> imageSegmentation(byte[] image) throws IOException, JSONException {
+        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image);
         MultipartBody.Part body = MultipartBody.Part.createFormData(
                 "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
         Call<JSONObject> call = imageRetrofitService.segmentImage(body);
@@ -50,7 +50,7 @@ public class ImageService {
         return objectComponentList;
     }
 
-    GuideImageListDTO recommendImage(MultipartFile image) {
+    public GuideImageListDTO recommendImage(MultipartFile image) {
         try {
             List<String> imageUrlList = new ArrayList<>();
             RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image.getBytes());
@@ -76,7 +76,7 @@ public class ImageService {
             }
 
             if (objectList.size() > 0) {
-                imageUrlList = imageDao.selectImageUrlByObject(objectList, 5, 50);
+                imageUrlList = imageDao.selectImageUrlByObjects(objectList, 5, 50);
             }
 
             if (personList.size() > 0) {

@@ -3,6 +3,10 @@ package com.gomson.tryangle.api.admin.image;
 import com.gomson.tryangle.api.image.ImageRetrofitService;
 import com.gomson.tryangle.dao.ImageDao;
 import com.gomson.tryangle.domain.*;
+import com.gomson.tryangle.domain.component.Component;
+import com.gomson.tryangle.domain.component.LineComponent;
+import com.gomson.tryangle.domain.component.ObjectComponent;
+import com.gomson.tryangle.domain.component.PersonComponent;
 import com.gomson.tryangle.dto.GuideDTO;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -90,7 +94,8 @@ public class AdminImageService {
                             imageDao.insertEffectiveLine(image.getId(), (LineComponent) component);
                         }
                         if (component instanceof PersonComponent) {
-                            imageDao.insertHumanPose(component.getId(), ((PersonComponent) component).getPose());
+                            PersonComponent personComponent = ((PersonComponent) component);
+                            imageDao.insertHumanPose(component.getId(), personComponent.getPose(), personComponent.getPosePoints());
                         }
                     }
 
@@ -125,7 +130,8 @@ public class AdminImageService {
     Boolean refresh(String baseDir) {
         File file = null;
         try {
-            List<Image> imageList = imageDao.selectUnmaskedImageList();
+//            List<Image> imageList = imageDao.selectUnmaskedImageList();
+            List<Image> imageList = imageDao.selectImageUrlByObject(1);
 
             for (Image image : imageList) {
                 file = new File(baseDir, image.getUrl());
@@ -154,7 +160,8 @@ public class AdminImageService {
                             imageDao.insertEffectiveLine(newImage.getId(), (LineComponent) component);
                         }
                         if (component instanceof PersonComponent) {
-                            imageDao.insertHumanPose(component.getId(), ((PersonComponent) component).getPose());
+                            PersonComponent personComponent = ((PersonComponent) component);
+                            imageDao.insertHumanPose(component.getId(), personComponent.getPose(), personComponent.getPosePoints());
                         }
                     }
 
