@@ -35,7 +35,8 @@ public interface ImageDao {
             int areaThreshold,
             int positionThreshold);
 
-    List<Image> selectImageUrlByObject(int objectId);
+    List<Image> selectImageByObject(int objectId);
+    List<Image> selectSinglePersonImage();
 
     List<String> selectImageUrlByPerson(List<PersonComponent> personComponentList,
                                         int areaThreshold,
@@ -48,4 +49,7 @@ public interface ImageDao {
     void deleteImage(long id);
 
     Integer getNumScoredImage();
+
+    void updateCluster(@Param("imageId") long imageId,
+                       @Param("cluster") int cluster);
 }

@@ -6,7 +6,7 @@
 
     <insert id="insertImage" parameterType="Image" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tryangle_image VALUES (
-            0, #{url}, #{author}, #{compositionProblemCount}, #{score}
+            0, #{url}, #{author}, #{compositionProblemCount}, #{score}, #{cluster}
         )
     </insert>
 
@@ -86,6 +86,9 @@
         SELECT * FROM tryangle_image
         WHERE author = #{userId}
         AND score = -1
+        <!-- @TODO Single Person 만 리턴되게 함 -->
+        AND id IN (SELECT image_id FROM tryangle_image_object WHERE object_id = 0
+            GROUP BY image_id having COUNT(*) = 1)
         LIMIT 15
     </select>
 
@@ -106,10 +109,18 @@
         </foreach>
     </select>
 
-    <select id="selectImageUrlByObject" resultType="Image">
+    <select id="selectImageByObject" resultType="Image">
         SELECT i.* FROM tryangle_image i
         JOIN tryangle_image_object tio on i.id = tio.image_id
         WHERE tio.object_id = #{objectId}
+    </select>
+
+    <select id="selectSinglePersonImage" resultType="Image">
+        SELECT ti.* FROM tryangle_image ti
+        WHERE ti.id IN (
+            SELECT image_id FROM tryangle_image_object WHERE object_id = 0
+            GROUP BY image_id having COUNT(*) = 1
+        )
     </select>
 
     <select id="selectImageUrlByPerson" resultType="String">
@@ -152,5 +163,11 @@
         SELECT COUNT(*) FROM tryangle_image
         WHERE score != -1
     </select>
+
+    <update id="updateCluster">
+        UPDATE tryangle_image
+        SET cluster = #{cluster}
+        WHERE id = #{imageId}
+    </update>
 
 </mapper>

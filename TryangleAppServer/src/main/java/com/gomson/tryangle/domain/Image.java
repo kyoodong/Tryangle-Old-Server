@@ -16,5 +16,6 @@ public class Image {
     private String author;
     private int compositionProblemCount;
     private int score;
+    private int cluster;
 
 }

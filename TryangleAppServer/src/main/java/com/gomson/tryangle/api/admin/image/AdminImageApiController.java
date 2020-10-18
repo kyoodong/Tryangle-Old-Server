@@ -44,6 +44,11 @@ public class AdminImageApiController {
         return adminImageService.refresh(resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/");
     }
 
+    @GetMapping("refresh-cluster")
+    private Boolean refreshCluster() throws IOException {
+        return adminImageService.refreshCluster(resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/");
+    }
+
     @GetMapping("score")
     private Integer getNumScoredImage() {
         return adminImageService.getNumScoredImage();

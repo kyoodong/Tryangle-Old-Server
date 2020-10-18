@@ -41,6 +41,7 @@ public class GuideDTO {
     private List<List<Guide>> guideList;
     private List<Component> componentList;
     private List<Integer> dominantColorList;
+    private int cluster = -1;
 
     public GuideDTO(JSONObject jsonObject) {
         guideList = new ArrayList<>(10);
@@ -151,6 +152,9 @@ public class GuideDTO {
             for (int i = 0; i < dominantColorArray.length(); i++) {
                 dominantColorList.add(dominantColorArray.getInt(i));
             }
+
+            int cluster = jsonObject.getInt("cluster");
+            this.cluster = cluster;
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -85,7 +85,7 @@ public class AdminImageService {
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
                     int guideCount = guideDTO.getCount();
-                    Image image = new Image(0, fileName, String.valueOf(I), guideCount, -1);
+                    Image image = new Image(0, fileName, String.valueOf(I), guideCount, -1, guideDTO.getCluster());
                     imageDao.insertImage(image);
                     for (Component component : guideDTO.getComponentList()) {
                         if (component instanceof ObjectComponent) {
@@ -131,7 +131,8 @@ public class AdminImageService {
         File file = null;
         try {
 //            List<Image> imageList = imageDao.selectUnmaskedImageList();
-            List<Image> imageList = imageDao.selectImageUrlByObject(1);
+//            List<Image> imageList = imageDao.selectImageByObject(1);
+            List<Image> imageList = imageDao.selectAllImageList();
 
             for (Image image : imageList) {
                 file = new File(baseDir, image.getUrl());
@@ -149,7 +150,7 @@ public class AdminImageService {
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
                     int guideCount = guideDTO.getCount();
-                    Image newImage = new Image(0, image.getUrl(), image.getAuthor(), guideCount, image.getScore());
+                    Image newImage = new Image(0, image.getUrl(), image.getAuthor(), guideCount, image.getScore(), guideDTO.getCluster());
 
                     imageDao.insertImage(newImage);
                     imageDao.deleteImage(image.getId());
@@ -168,6 +169,34 @@ public class AdminImageService {
                     for (int colorId : guideDTO.getDominantColorList()) {
                         imageDao.insertDominantColor(newImage.getId(), colorId);
                     }
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            if (file != null)
+                file.deleteOnExit();
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Transactional
+    Boolean refreshCluster(String baseDir) {
+        File file = null;
+        try {
+            List<Image> imageList = imageDao.selectSinglePersonImage();
+
+            for (Image image : imageList) {
+                file = new File(baseDir, image.getUrl());
+                RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"),
+                        FileUtils.readFileToByteArray(file));
+                MultipartBody.Part body = MultipartBody.Part.createFormData(
+                        "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
+                Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
+                Response<JSONObject> response = call.execute();
+                if (response.isSuccessful()) {
+                    GuideDTO guideDTO = new GuideDTO(response.body());
+                    imageDao.updateCluster(image.getId(), guideDTO.getCluster());
                 }
             }
             return true;
