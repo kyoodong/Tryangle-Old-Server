@@ -83,7 +83,8 @@ class ImageGuideView(APIView):
             "guide": guider.guide_list,
             "component_list": component_list,
             "dominant_color_list": dominant_colors,
-            "image_size": list(image.shape[:2])
+            "image_size": list(image.shape[:2]),
+            "cluster": guider.cluster
         }
         return Response(str(body), status=status.HTTP_200_OK, content_type='application/json')
 
