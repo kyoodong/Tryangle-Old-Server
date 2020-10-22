@@ -6,22 +6,22 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.gomson.tryangle.api.image.ImageRetrofitService;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.util.concurrent.TimeUnit;
 
+@PropertySource("classpath:server_config.yml")
 @Configuration
 public class JsonPlaceholderConfig {
 
-    // GPU
-//    public static final String ML_SERVER_URL = "http://121.139.71.162:8001";
-
-    // CPU
-    public static final String ML_SERVER_URL = "http://121.139.71.162:8000";
+    @Value("${server.url}")
+    private String ML_SERVER_URL;
 
 //    @Autowired
 //    private Interceptor jsonPlaceholderInterceptor;

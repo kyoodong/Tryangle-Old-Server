@@ -21,6 +21,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -85,7 +86,7 @@ public class AdminImageService {
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
                     int guideCount = guideDTO.getCount();
-                    Image image = new Image(0, fileName, String.valueOf(I), guideCount, -1, guideDTO.getCluster());
+                    Image image = new Image(0, fileName, String.valueOf(I), guideCount, -1, guideDTO.getCluster(), null, null);
                     imageDao.insertImage(image);
                     for (Component component : guideDTO.getComponentList()) {
                         if (component instanceof ObjectComponent) {
@@ -129,12 +130,12 @@ public class AdminImageService {
     @Transactional
     Boolean refresh(String baseDir) {
         File file = null;
-        try {
-//            List<Image> imageList = imageDao.selectUnmaskedImageList();
-//            List<Image> imageList = imageDao.selectImageByObject(1);
-            List<Image> imageList = imageDao.selectAllImageList();
+        Image lastImage = null;
+        List<Image> imageList = imageDao.selectAllImageList();
 
-            for (Image image : imageList) {
+        for (Image image : imageList) {
+            lastImage = image;
+            try {
                 file = new File(baseDir, image.getUrl());
                 if (!file.exists()) {
                     imageDao.deleteImage(image.getId());
@@ -150,10 +151,15 @@ public class AdminImageService {
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
                     int guideCount = guideDTO.getCount();
-                    Image newImage = new Image(0, image.getUrl(), image.getAuthor(), guideCount, image.getScore(), guideDTO.getCluster());
+                    Image newImage = new Image(0, image.getUrl(), image.getAuthor(), guideCount, image.getScore(), guideDTO.getCluster(), null, null);
+
+                    int deleteCount = imageDao.deleteImage(image.getId());
+                    if (deleteCount == 0) {
+                        System.out.println("deleteCount is zero");
+                        continue;
+                    }
 
                     imageDao.insertImage(newImage);
-                    imageDao.deleteImage(image.getId());
                     for (Component component : guideDTO.getComponentList()) {
                         if (component instanceof ObjectComponent) {
                             imageDao.insertObject(newImage.getId(), (ObjectComponent) component);
@@ -170,14 +176,18 @@ public class AdminImageService {
                         imageDao.insertDominantColor(newImage.getId(), colorId);
                     }
                 }
+            } catch (Exception e) {
+                if (file != null)
+                    file.deleteOnExit();
+
+                if (lastImage != null)
+                    imageDao.deleteImage(lastImage.getId());
+
+                e.printStackTrace();
+                return false;
             }
-            return true;
-        } catch (Exception e) {
-            if (file != null)
-                file.deleteOnExit();
-            e.printStackTrace();
-            return false;
         }
+        return true;
     }
 
     @Transactional
@@ -187,16 +197,20 @@ public class AdminImageService {
             List<Image> imageList = imageDao.selectSinglePersonImage();
 
             for (Image image : imageList) {
-                file = new File(baseDir, image.getUrl());
-                RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"),
-                        FileUtils.readFileToByteArray(file));
-                MultipartBody.Part body = MultipartBody.Part.createFormData(
-                        "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
-                Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
-                Response<JSONObject> response = call.execute();
-                if (response.isSuccessful()) {
-                    GuideDTO guideDTO = new GuideDTO(response.body());
-                    imageDao.updateCluster(image.getId(), guideDTO.getCluster());
+                try {
+                    file = new File(baseDir, image.getUrl());
+                    RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"),
+                            FileUtils.readFileToByteArray(file));
+                    MultipartBody.Part body = MultipartBody.Part.createFormData(
+                            "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
+                    Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
+                    Response<JSONObject> response = call.execute();
+                    if (response.isSuccessful()) {
+                        GuideDTO guideDTO = new GuideDTO(response.body());
+                        imageDao.updateCluster(image.getId(), guideDTO.getCluster());
+                    }
+                } catch (FileNotFoundException e) {
+                    imageDao.deleteImage(image.getId());
                 }
             }
             return true;

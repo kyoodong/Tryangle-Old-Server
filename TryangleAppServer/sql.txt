@@ -313,3 +313,6 @@ ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_ANKLE_X` INT;
 ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_ANKLE_Y` INT;
 ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_ANKLE_X` INT;
 ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_ANKLE_Y` INT;
+
+ALTER TABLE tryangle_image MODIFY COLUMN url VARCHAR(300) UNIQUE;
+ALTER TABLE tryangle_image ADD COLUMN created_at DATETIME DEFAULT NOW();

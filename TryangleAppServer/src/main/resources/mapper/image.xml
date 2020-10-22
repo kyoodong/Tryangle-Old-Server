@@ -6,7 +6,7 @@
 
     <insert id="insertImage" parameterType="Image" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tryangle_image VALUES (
-            0, #{url}, #{author}, #{compositionProblemCount}, #{score}, #{cluster}
+            0, #{url}, #{author}, #{compositionProblemCount}, #{score}, #{cluster}, NOW(), #{scoredAt}
         )
     </insert>
 
@@ -94,7 +94,8 @@
 
     <update id="updateImageScore">
         UPDATE tryangle_image SET
-        score = #{score}
+        score = #{score},
+        scored_at = NOW()
         WHERE id = #{imageId}
     </update>
 
@@ -121,6 +122,7 @@
             SELECT image_id FROM tryangle_image_object WHERE object_id = 0
             GROUP BY image_id having COUNT(*) = 1
         )
+        AND cluster is null
     </select>
 
     <select id="selectImageUrlByPerson" resultType="String">
@@ -150,8 +152,7 @@
     </select>
 
     <select id="selectAllImageList" resultType="Image">
-        SELECT ti.* FROM tryangle_image_object tio
-        JOIN tryangle_image ti on tio.image_id = ti.id
+        SELECT * FROM tryangle_image
     </select>
 
     <delete id="deleteImage">
