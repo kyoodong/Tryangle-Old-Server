@@ -64,7 +64,7 @@ public class ImageService {
             GuideDTO guideDTO = new GuideDTO(response.body());
 
             if (guideDTO.getCluster() >= 0) {
-                imageUrlList.addAll(imageDao.selectImageUrlByCluster(guideDTO.getCluster()));
+                imageUrlList.addAll(imageDao.selectImageUrlByCluster(guideDTO.getCluster(), guideDTO.getDominantColorList()));
             } else {
                 List<ObjectComponent> objectList = new ArrayList<>();
                 List<PersonComponent> personList = new ArrayList<>();

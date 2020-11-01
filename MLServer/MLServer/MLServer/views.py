@@ -23,6 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
+# 이미지 세그멘테이션
 class ImageSegmentationView(APIView):
     # authentication_classes = [authentication.TokenAuthentication]
     # permission_classes = [permissions.IsAuthenticated]
@@ -45,6 +46,7 @@ class ImageSegmentationView(APIView):
         return Response(str(body), status=status.HTTP_200_OK, content_type='application/json')
 
 
+# 사진 DB 정리할 때 필요한 가이드 추출
 class ImageGuideView(APIView):
     def post(self, request, format=None):
         file = request.FILES['file']
@@ -88,3 +90,47 @@ class ImageGuideView(APIView):
         }
         return Response(str(body), status=status.HTTP_200_OK, content_type='application/json')
 
+
+class ImageGetComponent(APIView):
+    def post(self, request, format=None):
+        pass
+        # file = request.FILES['file']
+        # image = cv2.imdecode(np.frombuffer(file.file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        # dominant_colors = list(color_guide.find_dominant_colors(image))
+        # guider = Guider(image, False)
+        #
+        # component_list = list()
+        # for component in guider.component_list:
+        #     if isinstance(component, LineComponent):
+        #         component_list.append(component)
+        #     else:
+        #         component_dict = dict()
+        #         data = dict()
+        #
+        #         if isinstance(component.object, Human):
+        #             data['pose'] = component.object.pose_class
+        #             pose_points = list()
+        #             for i in range(component.object.pose.shape[0]):
+        #                 if component.object.pose[i][2] > 0.05:
+        #                     pose_points.append(list(component.object.pose[i, :2]))
+        #                 else:
+        #                     pose_points.append(None)
+        #             data['pose_points'] = pose_points
+        #
+        #         data['id'] = component.id
+        #         data['class'] = component.object.clazz
+        #         data['center_point_x'] = component.object.center_point[0]
+        #         data['center_point_y'] = component.object.center_point[1]
+        #         data['area'] = component.object.area
+        #         data['mask'] = [list(y) for y in component.object.mask]
+        #         data['roi'] = list(component.object.roi)
+        #         component_dict['ObjectComponent'] = data
+        #         component_list.append(component_dict)
+        #
+        # body = {
+        #     "component_list": component_list,
+        #     "dominant_color_list": dominant_colors,
+        #     "image_size": list(image.shape[:2]),
+        #     "cluster": guider.cluster
+        # }
+        # return Response(str(body), status=status.HTTP_200_OK, content_type='application/json')

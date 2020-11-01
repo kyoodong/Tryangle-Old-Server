@@ -42,7 +42,7 @@ public interface ImageDao {
                                         int areaThreshold,
                                         int positionThreshold);
 
-    List<String> selectImageUrlByCluster(int cluster);
+    List<String> selectImageUrlByCluster(int cluster, List<Integer> colorList);
 
     List<ObjectComponent> selectComponentByUrl(String url);
 

@@ -38,40 +38,15 @@ public class GuideDTO {
         "RIGHT_ANKLE"
     };
 
-    private List<List<Guide>> guideList;
     private List<Component> componentList;
     private List<Integer> dominantColorList;
     private int cluster = -1;
 
     public GuideDTO(JSONObject jsonObject) {
-        guideList = new ArrayList<>(10);
         componentList = new ArrayList<>();
         dominantColorList = new ArrayList<>();
 
-        for (int i = 0; i < 10; i++)
-            guideList.add(new ArrayList<>());
-
         try {
-            JSONArray guide = jsonObject.getJSONArray("guide");
-            JSONArray guideArray = guide.getJSONArray(0);
-            for (int i = 0; i < guideArray.length(); i++) {
-                JSONObject guideObject = guideArray.getJSONObject(i);
-                if (guideObject.has("LineGuide")) {
-                    JSONObject lineGuide = guideObject.getJSONObject("LineGuide");
-                    int objectId = lineGuide.getInt("object_id");
-                    int guideId = lineGuide.getInt("guide_id");
-                    guideList.get(i).add(new LineGuide(objectId, guideId));
-                } else if (guideObject.has("ObjectGuide")) {
-                    JSONObject objectGuide = guideObject.getJSONObject("ObjectGuide");
-                    int objectId = objectGuide.getInt("object_id");
-                    int guideId = objectGuide.getInt("guide_id");
-                    int diffX = objectGuide.getInt("diff_x");
-                    int diffY = objectGuide.getInt("diff_y");
-                    int objectClass = objectGuide.getInt("object_class");
-                    guideList.get(i).add(new ObjectGuide(objectId, guideId, diffX, diffY, objectClass));
-                }
-            }
-
             JSONArray imageSize = jsonObject.getJSONArray("image_size");
             int imageHeight = imageSize.getInt(0);
             int imageWidth = imageSize.getInt(1);
@@ -165,8 +140,8 @@ public class GuideDTO {
 
     public int getCount() {
         int count = 0;
-        for (List<Guide> list : guideList) {
-            count += list.size();
+        for (Component component : componentList) {
+            count += component.getGuideList().size();
         }
         return count;
     }
