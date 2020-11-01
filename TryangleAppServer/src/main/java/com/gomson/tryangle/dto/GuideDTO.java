@@ -87,6 +87,7 @@ public class GuideDTO {
                     int endX = linePointArray.getInt(2);
                     int endY = linePointArray.getInt(3);
                     componentList.add(new LineComponent(0, line.getInt("id"),
+                            null,
                             new Point(startX, startY),
                             new Point(endX, endY)));
 
@@ -125,6 +126,7 @@ public class GuideDTO {
                         objectComponent = new PersonComponent(
                                 0,
                                 id,
+                                null,
                                 clazz,
                                 new Point(centerPointX, centerPointY),
                                 (float) (imageWidth * imageHeight) / area,
@@ -137,6 +139,7 @@ public class GuideDTO {
                         objectComponent = new ObjectComponent(
                                 0,
                                 id,
+                                null,
                                 clazz,
                                 new Point(centerPointX, centerPointY),
                                 (float) (imageWidth * imageHeight) / area,

@@ -1,5 +1,6 @@
 package com.gomson.tryangle.domain.component;
 
+import com.gomson.tryangle.domain.Guide;
 import com.gomson.tryangle.domain.Point;
 import com.gomson.tryangle.domain.Roi;
 import lombok.Getter;
@@ -20,9 +21,9 @@ public class ObjectComponent extends Component {
     private ArrayList<ArrayList<Integer>> mask;
     private Roi roi;
 
-    public ObjectComponent(long id, long componentId, int clazz, Point centerPoint, float area,
+    public ObjectComponent(long id, long componentId, ArrayList<Guide> guideList, int clazz, Point centerPoint, float area,
                            String maskStr, String roiStr) {
-        super(id, componentId);
+        super(id, componentId, guideList);
         this.clazz = clazz;
         this.centerPoint = centerPoint;
         this.area = area;
@@ -31,7 +32,7 @@ public class ObjectComponent extends Component {
     }
 
     public ObjectComponent(JSONObject json) {
-        super(0, 0);
+        super(0, 0, new ArrayList<>());
 
         try {
             this.clazz = json.getInt("class_ids");

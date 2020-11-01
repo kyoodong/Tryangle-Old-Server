@@ -7,7 +7,8 @@ from rest_framework.views import APIView
 import process.image_api as api
 from MLServer.MLServer.serializers import UserSerializer
 from MLServer.MLServer.tryangle_models import User
-from process.guider import Guider, LineComponent
+from process.guider.guider import Guider
+from process.component import LineComponent
 import process.color as color_guide
 from process.object import Human, Object
 import matplotlib.pyplot as plt
@@ -37,10 +38,10 @@ class ImageSegmentationView(APIView):
             body['result'].append({
                 'rois': list(r['rois'][index]),
                 'class_ids': r['class_ids'][index],
-                'mask': [list(y) for y in r['masks'][:, :, index]]
+                'mask': [list(y) for y in r['masks'][index]]
             })
-            plt.imshow(r['masks'][:, :, index])
-            plt.show()
+            # plt.imshow(r['masks'][:, :, index])
+            # plt.show()
         return Response(str(body), status=status.HTTP_200_OK, content_type='application/json')
 
 
@@ -80,7 +81,6 @@ class ImageGuideView(APIView):
                 component_list.append(component_dict)
 
         body = {
-            "guide": guider.guide_list,
             "component_list": component_list,
             "dominant_color_list": dominant_colors,
             "image_size": list(image.shape[:2]),

@@ -63,24 +63,31 @@ public class ImageService {
 
             GuideDTO guideDTO = new GuideDTO(response.body());
 
-            List<ObjectComponent> objectList = new ArrayList<>();
-            List<PersonComponent> personList = new ArrayList<>();
-            for (Component component : guideDTO.getComponentList()) {
-                if (component instanceof PersonComponent) {
-                    personList.add((PersonComponent) component);
-                }
-                else if (component instanceof ObjectComponent) {
-                    ObjectComponent objectComponent = (ObjectComponent) component;
-                    objectList.add(objectComponent);
-                }
-            }
+            if (guideDTO.getCluster() >= 0) {
+                imageUrlList.addAll(imageDao.selectImageUrlByCluster(guideDTO.getCluster()));
+            } else {
+                List<ObjectComponent> objectList = new ArrayList<>();
+                List<PersonComponent> personList = new ArrayList<>();
+                for (Component component : guideDTO.getComponentList()) {
+                    // person 컴포넌트 수집
+                    if (component instanceof PersonComponent) {
+                        personList.add((PersonComponent) component);
+                    }
 
-            if (objectList.size() > 0) {
-                imageUrlList = imageDao.selectImageUrlByObjects(objectList, 5, 50);
-            }
+                    // object 컴포넌트 수집
+                    else if (component instanceof ObjectComponent) {
+                        ObjectComponent objectComponent = (ObjectComponent) component;
+                        objectList.add(objectComponent);
+                    }
+                }
 
-            if (personList.size() > 0) {
-                imageUrlList.addAll(imageDao.selectImageUrlByPerson(personList, 5, 50));
+                if (objectList.size() > 0) {
+                    imageUrlList.addAll(imageDao.selectImageUrlByObjects(objectList, 5, 50));
+                }
+
+                if (personList.size() > 0) {
+                    imageUrlList.addAll(imageDao.selectImageUrlByPerson(personList, 5, 50));
+                }
             }
             return new GuideImageListDTO(guideDTO, imageUrlList);
         } catch (IOException e) {

@@ -42,6 +42,8 @@ public interface ImageDao {
                                         int areaThreshold,
                                         int positionThreshold);
 
+    List<String> selectImageUrlByCluster(int cluster);
+
     List<ObjectComponent> selectComponentByUrl(String url);
 
     List<Image> selectUnmaskedImageList();

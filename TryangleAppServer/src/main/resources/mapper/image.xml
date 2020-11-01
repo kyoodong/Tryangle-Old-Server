@@ -135,7 +135,14 @@
             AND tio.center_x BETWEEN #{person.centerPoint.x} - #{positionThreshold} AND #{person.centerPoint.x} + #{positionThreshold}
             AND tio.center_y BETWEEN #{person.centerPoint.y} - #{positionThreshold} AND #{person.centerPoint.y} + #{positionThreshold}
             AND topp.pose_id = #{person.pose}
+            AND i.cluster = -1
         </foreach>
+    </select>
+
+    <select id="selectImageUrlByCluster" resultType="String">
+        SELECT i.url FROM tryangle_image i
+        WHERE cluster = #{cluster}
+        ORDER BY score DESC
     </select>
 
     <select id="selectComponentByUrl" resultType="ObjectComponent">
