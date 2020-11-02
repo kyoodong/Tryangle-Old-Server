@@ -88,16 +88,16 @@ public class AdminImageService {
                     int guideCount = guideDTO.getCount();
                     Image image = new Image(0, fileName, String.valueOf(I), guideCount, -1, guideDTO.getCluster(), null, null);
                     imageDao.insertImage(image);
-                    for (Component component : guideDTO.getComponentList()) {
-                        if (component instanceof ObjectComponent) {
-                            imageDao.insertObject(image.getId(), (ObjectComponent) component);
-                        } else if (component instanceof LineComponent) {
-                            imageDao.insertEffectiveLine(image.getId(), (LineComponent) component);
-                        }
-                        if (component instanceof PersonComponent) {
-                            PersonComponent personComponent = ((PersonComponent) component);
-                            imageDao.insertHumanPose(component.getId(), personComponent.getPose(), personComponent.getPosePoints());
-                        }
+                    for (ObjectComponent component : guideDTO.getObjectComponentList()) {
+                        imageDao.insertObject(image.getId(), component);
+                    }
+
+                    for (LineComponent component : guideDTO.getLineComponentList()) {
+                        imageDao.insertEffectiveLine(image.getId(), component);
+                    }
+
+                    for (PersonComponent component : guideDTO.getPersonComponentList()) {
+                        imageDao.insertHumanPose(component.getId(), component.getPose(), component.getPosePoints());
                     }
 
                     for (int colorId : guideDTO.getDominantColorList()) {
@@ -160,16 +160,16 @@ public class AdminImageService {
                     }
 
                     imageDao.insertImage(newImage);
-                    for (Component component : guideDTO.getComponentList()) {
-                        if (component instanceof ObjectComponent) {
-                            imageDao.insertObject(newImage.getId(), (ObjectComponent) component);
-                        } else if (component instanceof LineComponent) {
-                            imageDao.insertEffectiveLine(newImage.getId(), (LineComponent) component);
-                        }
-                        if (component instanceof PersonComponent) {
-                            PersonComponent personComponent = ((PersonComponent) component);
-                            imageDao.insertHumanPose(component.getId(), personComponent.getPose(), personComponent.getPosePoints());
-                        }
+                    for (LineComponent component : guideDTO.getLineComponentList()) {
+                        imageDao.insertEffectiveLine(image.getId(), component);
+                    }
+
+                    for (PersonComponent component : guideDTO.getPersonComponentList()) {
+                        imageDao.insertHumanPose(component.getId(), component.getPose(), component.getPosePoints());
+                    }
+
+                    for (int colorId : guideDTO.getDominantColorList()) {
+                        imageDao.insertDominantColor(image.getId(), colorId);
                     }
 
                     for (int colorId : guideDTO.getDominantColorList()) {

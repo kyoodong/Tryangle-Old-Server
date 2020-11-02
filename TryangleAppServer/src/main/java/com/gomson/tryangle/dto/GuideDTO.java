@@ -5,6 +5,7 @@ import com.gomson.tryangle.domain.component.Component;
 import com.gomson.tryangle.domain.component.LineComponent;
 import com.gomson.tryangle.domain.component.ObjectComponent;
 import com.gomson.tryangle.domain.component.PersonComponent;
+import com.gomson.tryangle.domain.guide.ObjectGuide;
 import lombok.Getter;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -38,12 +39,16 @@ public class GuideDTO {
         "RIGHT_ANKLE"
     };
 
-    private List<Component> componentList;
+    private List<LineComponent> lineComponentList;
+    private List<ObjectComponent> objectComponentList;
+    private List<PersonComponent> personComponentList;
     private List<Integer> dominantColorList;
     private int cluster = -1;
 
     public GuideDTO(JSONObject jsonObject) {
-        componentList = new ArrayList<>();
+        lineComponentList = new ArrayList<>();
+        personComponentList = new ArrayList<>();
+        objectComponentList = new ArrayList<>();
         dominantColorList = new ArrayList<>();
 
         try {
@@ -61,14 +66,13 @@ public class GuideDTO {
                     int startY = linePointArray.getInt(1);
                     int endX = linePointArray.getInt(2);
                     int endY = linePointArray.getInt(3);
-                    componentList.add(new LineComponent(0, line.getInt("id"),
+                    lineComponentList.add(new LineComponent(0, line.getInt("id"),
                             null,
                             new Point(startX, startY),
                             new Point(endX, endY)));
 
                 } else if (component.has("ObjectComponent")) {
                     JSONObject object = component.getJSONObject("ObjectComponent");
-                    ObjectComponent objectComponent;
 
                     int id = object.getInt("id");
                     int clazz = object.getInt("class");
@@ -79,8 +83,16 @@ public class GuideDTO {
                     mask = mask.replaceAll("true", "1")
                             .replaceAll("false", "0")
                             .replaceAll(" ", "");
-
                     String roi = object.getString("roi");
+
+                    ArrayList<ObjectGuide> guideList = new ArrayList<>();
+                    if (object.has("guide_list")) {
+                        JSONArray guideJsonList = object.getJSONArray("guide_list");
+                        for (int j = 0; j < guideJsonList.length(); j++) {
+                            ObjectGuide objectGuide = new ObjectGuide(guideJsonList.getJSONObject(j).getJSONObject("ObjectGuide"));
+                            guideList.add(objectGuide);
+                        }
+                    }
 
                     if (object.has("pose")) {
                         int pose = object.getInt("pose");
@@ -98,10 +110,10 @@ public class GuideDTO {
                             posePoints.put(BodyPart[j], new Point(x, y));
                         }
 
-                        objectComponent = new PersonComponent(
+                        PersonComponent personComponent = new PersonComponent(
                                 0,
                                 id,
-                                null,
+                                guideList,
                                 clazz,
                                 new Point(centerPointX, centerPointY),
                                 (float) (imageWidth * imageHeight) / area,
@@ -110,19 +122,20 @@ public class GuideDTO {
                                 pose,
                                 posePoints
                         );
+                        personComponentList.add(personComponent);
                     } else {
-                        objectComponent = new ObjectComponent(
+                        ObjectComponent objectComponent = new ObjectComponent(
                                 0,
                                 id,
-                                null,
+                                guideList,
                                 clazz,
                                 new Point(centerPointX, centerPointY),
                                 (float) (imageWidth * imageHeight) / area,
                                 mask,
                                 roi
                         );
+                        objectComponentList.add(objectComponent);
                     }
-                    componentList.add(objectComponent);
                 }
             }
 
@@ -140,7 +153,15 @@ public class GuideDTO {
 
     public int getCount() {
         int count = 0;
-        for (Component component : componentList) {
+        for (Component component : lineComponentList) {
+            count += component.getGuideList().size();
+        }
+
+        for (Component component : objectComponentList) {
+            count += component.getGuideList().size();
+        }
+
+        for (Component component : personComponentList) {
             count += component.getGuideList().size();
         }
         return count;
@@ -148,14 +169,11 @@ public class GuideDTO {
 
     public Map<Integer, Integer> getObjectClassCount() {
         Map<Integer, Integer> map = new HashMap<>();
-        for (Component component : componentList) {
-            if (component instanceof ObjectComponent) {
-                ObjectComponent objectComponent = ((ObjectComponent) component);
-                if (map.containsKey(objectComponent.getClazz())) {
-                    map.put(objectComponent.getClazz(), map.get(objectComponent.getClazz()) + 1);
-                } else {
-                    map.put(objectComponent.getClazz(), 1);
-                }
+        for (ObjectComponent objectComponent : objectComponentList) {
+            if (map.containsKey(objectComponent.getClazz())) {
+                map.put(objectComponent.getClazz(), map.get(objectComponent.getClazz()) + 1);
+            } else {
+                map.put(objectComponent.getClazz(), 1);
             }
         }
         return map;

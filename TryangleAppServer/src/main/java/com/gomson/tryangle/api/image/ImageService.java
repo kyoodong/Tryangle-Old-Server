@@ -66,27 +66,12 @@ public class ImageService {
             if (guideDTO.getCluster() >= 0) {
                 imageUrlList.addAll(imageDao.selectImageUrlByCluster(guideDTO.getCluster(), guideDTO.getDominantColorList()));
             } else {
-                List<ObjectComponent> objectList = new ArrayList<>();
-                List<PersonComponent> personList = new ArrayList<>();
-                for (Component component : guideDTO.getComponentList()) {
-                    // person 컴포넌트 수집
-                    if (component instanceof PersonComponent) {
-                        personList.add((PersonComponent) component);
-                    }
-
-                    // object 컴포넌트 수집
-                    else if (component instanceof ObjectComponent) {
-                        ObjectComponent objectComponent = (ObjectComponent) component;
-                        objectList.add(objectComponent);
-                    }
+                if (guideDTO.getObjectComponentList().size() > 0) {
+                    imageUrlList.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 50));
                 }
 
-                if (objectList.size() > 0) {
-                    imageUrlList.addAll(imageDao.selectImageUrlByObjects(objectList, 5, 50));
-                }
-
-                if (personList.size() > 0) {
-                    imageUrlList.addAll(imageDao.selectImageUrlByPerson(personList, 5, 50));
+                if (guideDTO.getPersonComponentList().size() > 0) {
+                    imageUrlList.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 50));
                 }
             }
             return new GuideImageListDTO(guideDTO, imageUrlList);

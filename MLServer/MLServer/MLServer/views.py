@@ -79,6 +79,7 @@ class ImageGuideView(APIView):
                 data['area'] = component.object.area
                 data['mask'] = [list(y) for y in component.object.mask]
                 data['roi'] = list(component.object.roi)
+                data['guide_list'] = component.guide_list
                 component_dict['ObjectComponent'] = data
                 component_list.append(component_dict)
 
