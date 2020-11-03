@@ -3,7 +3,9 @@ package com.gomson.tryangle.domain.component;
 import com.gomson.tryangle.domain.guide.Guide;
 import com.gomson.tryangle.domain.Point;
 import com.gomson.tryangle.domain.Roi;
+import com.gomson.tryangle.domain.guide.ObjectGuide;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -21,7 +23,11 @@ public class ObjectComponent extends Component {
     private ArrayList<ArrayList<Integer>> mask;
     private Roi roi;
 
-    public ObjectComponent(long id, long componentId, ArrayList<? extends Guide> guideList, int clazz, Point centerPoint, float area,
+    public ObjectComponent() {
+        super(0, 0, new ArrayList<>());
+    }
+
+    public ObjectComponent(long id, long componentId, ArrayList<ObjectGuide> guideList, int clazz, Point centerPoint, float area,
                            String maskStr, String roiStr) {
         super(id, componentId, guideList);
         this.clazz = clazz;
@@ -76,5 +82,14 @@ public class ObjectComponent extends Component {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public ArrayList<ObjectGuide> getGuideList() {
+        ArrayList<ObjectGuide> guides = new ArrayList<>();
+        for (Guide guide : guideList) {
+            guides.add((ObjectGuide) guide);
+        }
+        return guides;
     }
 }

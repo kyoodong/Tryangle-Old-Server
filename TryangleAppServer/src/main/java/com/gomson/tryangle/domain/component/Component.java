@@ -12,6 +12,13 @@ public class Component {
 
     private long id;
     private long componentId;
-    private ArrayList<? extends Guide> guideList;
+    protected ArrayList<? extends Guide> guideList;
 
+    public ArrayList<? extends Guide> getGuideList() {
+        return new ArrayList<Guide>(guideList);
+    }
+
+    public void setGuideList(ArrayList<? extends Guide> guideList) {
+        this.guideList = guideList;
+    }
 }

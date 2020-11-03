@@ -4,6 +4,17 @@
 
 <mapper namespace="com.gomson.tryangle.dao.ImageDao">
 
+    <resultMap id="ObjectComponentMap" type="ObjectComponent">
+        <id property="id" column="id"/>
+        <result property="area" column="area"/>
+        <result property="maskStr" column="mask"/>
+        <result property="roiStr" column="roi"/>
+        <association property="centerPoint" javaType="Point">
+            <result property="x" column="center_x"/>
+            <result property="y" column="center_y"/>
+        </association>
+    </resultMap>
+
     <insert id="insertImage" parameterType="Image" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tryangle_image VALUES (
             0, #{url}, #{author}, #{compositionProblemCount}, #{score}, #{cluster}, NOW(), #{scoredAt}
@@ -140,7 +151,7 @@
     </select>
 
     <select id="selectImageUrlByCluster" resultType="String">
-        SELECT * FROM tryangle_image ti JOIN tryangle_image_dominant_color tidc ON ti.id = tidc.image_id
+        SELECT ti.url FROM tryangle_image ti JOIN tryangle_image_dominant_color tidc ON ti.id = tidc.image_id
         WHERE cluster = #{cluster}
         AND ti.id IN (
             SELECT image_id FROM tryangle_image_dominant_color WHERE color_id IN
@@ -152,8 +163,8 @@
         ORDER BY ti.score
     </select>
 
-    <select id="selectComponentByUrl" resultType="ObjectComponent">
-        SELECT tio.object_id clazz, tio.center_x centerPoint.x, tio.center_y centerPoint.y, tio.area area,
+    <select id="selectComponentByUrl" resultMap="ObjectComponentMap">
+        SELECT tio.object_id clazz, tio.center_x, tio.center_y, tio.area area,
                tio.mask mask, tio.roi roi FROM tryangle_image_object tio
         JOIN tryangle_image ti on tio.image_id = ti.id
         WHERE ti.url = #{url}
