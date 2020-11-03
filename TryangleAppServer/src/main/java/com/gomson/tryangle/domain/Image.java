@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -16,5 +18,8 @@ public class Image {
     private String author;
     private int compositionProblemCount;
     private int score;
+    private int cluster;
+    private LocalDateTime createdAt;
+    private LocalDateTime scoredAt;
 
 }

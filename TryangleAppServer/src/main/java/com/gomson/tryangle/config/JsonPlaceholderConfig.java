@@ -3,25 +3,25 @@ package com.gomson.tryangle.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.gomson.tryangle.api.admin.image.AdminImageRetrofitService;
+import com.gomson.tryangle.api.image.ImageRetrofitService;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.util.concurrent.TimeUnit;
 
+@PropertySource("classpath:server_config.yml")
 @Configuration
 public class JsonPlaceholderConfig {
 
-    // GPU
-//    public static final String ML_SERVER_URL = "http://14.35.207.80:8001";
-
-    // CPU
-    public static final String ML_SERVER_URL = "http://14.35.207.80:8000";
+    @Value("${server.url}")
+    private String ML_SERVER_URL;
 
 //    @Autowired
 //    private Interceptor jsonPlaceholderInterceptor;
@@ -58,9 +58,9 @@ public class JsonPlaceholderConfig {
     }
 
     @Bean
-    public AdminImageRetrofitService imageRetrofitService(
+    public ImageRetrofitService imageRetrofitService(
             @Qualifier("jsonPlaceholderRetrofit") Retrofit jsonPlaceholderRetrofit
     ) {
-        return jsonPlaceholderRetrofit.create(AdminImageRetrofitService.class);
+        return jsonPlaceholderRetrofit.create(ImageRetrofitService.class);
     }
 }

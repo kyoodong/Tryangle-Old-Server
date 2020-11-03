@@ -11,7 +11,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@ComponentScan(basePackages = {"com.gomson.tryangle"})
+@ComponentScan(basePackages = {
+        "com.gomson.tryangle"
+})
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 

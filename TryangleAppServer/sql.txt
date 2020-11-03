@@ -276,3 +276,43 @@ INSERT INTO tryangle_color VALUES(17, 0, 0, 0);
 INSERT INTO tryangle_pose VALUES(0, 'Unknown');
 INSERT INTO tryangle_pose VALUES(1, 'Stand');
 INSERT INTO tryangle_pose VALUES(2, 'Sit');
+
+
+
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `NOSE_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `NOSE_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_EYE_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_EYE_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_EYE_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_EYE_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_EAR_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_EAR_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_EAR_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_EAR_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_SHOULDER_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_SHOULDER_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_SHOULDER_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_SHOULDER_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_ELBOW_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_ELBOW_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_ELBOW_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_ELBOW_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_WRIST_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_WRIST_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_WRIST_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_WRIST_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_HIP_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_HIP_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_HIP_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_HIP_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_KNEE_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_KNEE_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_KNEE_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_KNEE_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_ANKLE_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `LEFT_ANKLE_Y` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_ANKLE_X` INT;
+ALTER TABLE tryangle_object_person_pose ADD COLUMN `RIGHT_ANKLE_Y` INT;
+
+ALTER TABLE tryangle_image MODIFY COLUMN url VARCHAR(300) UNIQUE;
+ALTER TABLE tryangle_image ADD COLUMN created_at DATETIME DEFAULT NOW();

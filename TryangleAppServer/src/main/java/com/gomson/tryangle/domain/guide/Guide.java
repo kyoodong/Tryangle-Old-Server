@@ -1,4 +1,4 @@
-package com.gomson.tryangle.domain;
+package com.gomson.tryangle.domain.guide;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Guide {
 
-    private int objectId;
     private int guideId;
 
 }
