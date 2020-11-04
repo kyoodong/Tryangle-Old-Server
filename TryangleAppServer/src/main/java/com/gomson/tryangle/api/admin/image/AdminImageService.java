@@ -23,6 +23,8 @@ import retrofit2.Response;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.util.Base64;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -97,11 +99,12 @@ public class AdminImageService {
                         continue;
                     }
 
-                    fos = new FileOutputStream(maskFile);
+                    FileWriter writer = new FileWriter(maskFile);
                     for (byte[] b : guideDTO.getMask()) {
-                        fos.write(b, 0, b.length);
+                        String data = Base64.getEncoder().encodeToString(b);
+                        writer.write(data);
                     }
-                    fos.close();
+                    writer.close();
 
                     Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(), null, null);
                     imageDao.insertImage(image);
@@ -171,11 +174,12 @@ public class AdminImageService {
 
                     String maskFileName = image.getUrl() + ".mask";
                     File maskFile = new File(maskBaseDir, maskFileName);
-                    FileOutputStream fos = new FileOutputStream(maskFile);
+                    FileWriter writer = new FileWriter(maskFile);
                     for (byte[] b : guideDTO.getMask()) {
-                        fos.write(b, 0, b.length);
+                        String data = Base64.getEncoder().encodeToString(b);
+                        writer.write(data);
                     }
-                    fos.close();
+                    writer.close();
                     imageDao.updateCluster(image.getId(), guideDTO.getCluster());
                     imageDao.deleteImageObject(image.getId());
                     imageDao.deleteImageDominantColor(image.getId());

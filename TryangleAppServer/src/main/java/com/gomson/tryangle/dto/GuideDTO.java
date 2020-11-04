@@ -39,7 +39,7 @@ public class GuideDTO {
     private List<ObjectComponent> objectComponentList;
     private List<PersonComponent> personComponentList;
     private List<Integer> dominantColorList;
-    private ArrayList<byte[]> mask;
+    private MaskList mask;
     private int cluster = -1;
 
     public GuideDTO(JSONObject jsonObject) {
@@ -157,7 +157,7 @@ public class GuideDTO {
     }
 
     public void setMaskJson(JSONArray maskArray) throws JSONException {
-        this.mask = new ArrayList<>();
+        this.mask = new MaskList();
         for (int i = 0; i < maskArray.length(); i++) {
             JSONArray arr = maskArray.getJSONArray(i);
             this.mask.add(new byte[arr.length()]);
