@@ -18,9 +18,7 @@ public class ObjectComponent extends Component {
     private int clazz;
     private Point centerPoint;
     private float area;
-    private String maskStr;
     private String roiStr;
-    private ArrayList<ArrayList<Integer>> mask;
     private Roi roi;
 
     public ObjectComponent() {
@@ -28,12 +26,11 @@ public class ObjectComponent extends Component {
     }
 
     public ObjectComponent(long id, long componentId, ArrayList<ObjectGuide> guideList, int clazz, Point centerPoint, float area,
-                           String maskStr, String roiStr) {
+                           String roiStr) {
         super(id, componentId, guideList);
         this.clazz = clazz;
         this.centerPoint = centerPoint;
         this.area = area;
-        setMaskStr(maskStr);
         setRoiStr(roiStr);
     }
 
@@ -42,32 +39,7 @@ public class ObjectComponent extends Component {
 
         try {
             this.clazz = json.getInt("class_ids");
-            setMaskStr(json.getString("mask"));
             setRoiStr(json.getString("rois"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setMaskStr(String maskStr) {
-        this.maskStr = maskStr;
-
-        try {
-            this.mask = new ArrayList<>();
-            JSONArray array = new JSONArray(maskStr);
-            for (int i = 0; i < array.length(); i++) {
-                JSONArray arr = array.getJSONArray(i);
-                this.mask.add(new ArrayList<>());
-                for (int j = 0; j < arr.length(); j++) {
-                    Object obj = arr.get(j);
-                    if (obj instanceof Integer) {
-                        this.mask.get(i).add((Integer) obj);
-                    } else {
-                        Boolean b = (Boolean) obj;
-                        this.mask.get(i).add(b ? 1 : 0);
-                    }
-                }
-            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

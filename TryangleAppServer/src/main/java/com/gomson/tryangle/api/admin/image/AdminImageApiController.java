@@ -26,6 +26,7 @@ public class AdminImageApiController {
         throws IOException {
         return adminImageService.insertImageList(
                 resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",
+                resourceLoader.getResource("classpath:masks").getFile().getAbsolutePath() + "/",
                 imageZip);
     }
 
@@ -41,7 +42,9 @@ public class AdminImageApiController {
 
     @GetMapping("refresh")
     private Boolean refresh() throws IOException {
-        return adminImageService.refresh(resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/");
+        return adminImageService.refresh(
+                resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",
+                resourceLoader.getResource("classpath:masks").getFile().getAbsolutePath() + "/");
     }
 
     @GetMapping("refresh-cluster")
