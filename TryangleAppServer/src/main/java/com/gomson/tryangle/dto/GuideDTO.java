@@ -1,7 +1,6 @@
 package com.gomson.tryangle.dto;
 
 import com.gomson.tryangle.domain.*;
-import com.gomson.tryangle.domain.component.Component;
 import com.gomson.tryangle.domain.component.LineComponent;
 import com.gomson.tryangle.domain.component.ObjectComponent;
 import com.gomson.tryangle.domain.component.PersonComponent;
@@ -136,7 +135,7 @@ public class GuideDTO {
             }
 
             JSONArray maskArray = jsonObject.getJSONArray("mask");
-            setMaskStr(maskArray);
+            setMaskJson(maskArray);
 
             int cluster = jsonObject.getInt("cluster");
             this.cluster = cluster;
@@ -157,7 +156,7 @@ public class GuideDTO {
         return map;
     }
 
-    public void setMaskStr(JSONArray maskArray) throws JSONException {
+    public void setMaskJson(JSONArray maskArray) throws JSONException {
         this.mask = new ArrayList<>();
         for (int i = 0; i < maskArray.length(); i++) {
             JSONArray arr = maskArray.getJSONArray(i);

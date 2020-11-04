@@ -92,6 +92,11 @@ public class AdminImageService {
 
                     String maskFileName = fileName + ".mask";
                     File maskFile = new File(maskBasDir, maskFileName);
+
+                    if (maskFile.exists()) {
+                        continue;
+                    }
+
                     fos = new FileOutputStream(maskFile);
                     for (byte[] b : guideDTO.getMask()) {
                         fos.write(b, 0, b.length);
@@ -101,9 +106,7 @@ public class AdminImageService {
                     Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(), null, null);
                     imageDao.insertImage(image);
                     for (ObjectComponent component : guideDTO.getObjectComponentList()) {
-                        if (component.getClazz() <= 1) {
-                            imageDao.insertObject(image.getId(), component);
-                        }
+                        imageDao.insertObject(image.getId(), component);
                     }
 
                     for (LineComponent component : guideDTO.getLineComponentList()) {
@@ -181,10 +184,7 @@ public class AdminImageService {
                     }
 
                     for (ObjectComponent component : guideDTO.getObjectComponentList()) {
-                        // TODO: 왜 output clazz 가 2 이상이 나올까?
-                        if (component.getClazz() <= 1) {
-                            imageDao.insertObject(image.getId(), component);
-                        }
+                        imageDao.insertObject(image.getId(), component);
                     }
 
                     for (PersonComponent component : guideDTO.getPersonComponentList()) {
