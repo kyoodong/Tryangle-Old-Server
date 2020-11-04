@@ -22,7 +22,7 @@ logging:
     org.hibernate.type: debug
 
 server:
-  port: 7776
+  port: 7778
 #  ssl:
 #    enabled: true
 #    key-store: keystore_dev.p12
