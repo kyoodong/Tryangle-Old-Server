@@ -41,6 +41,7 @@ public class AdminImageService {
     @Transactional
     boolean insertImageList(String imageBaseDir, String maskBasDir, MultipartFile imageZip) {
         File file = null;
+        File maskFile = null;
         try {
             // zip 파일 체크
             String fileType = imageZip.getOriginalFilename().substring(imageZip.getOriginalFilename().lastIndexOf(".") + 1);
@@ -88,12 +89,14 @@ public class AdminImageService {
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
 
-                    // 사람 없으면 패스
-                    if (guideDTO.getPersonComponentList().isEmpty())
+                    // 오브젝트 없으면 패스
+                    if (guideDTO.getPersonComponentList().isEmpty() && guideDTO.getObjectComponentList().isEmpty()) {
+                        file.delete();
                         continue;
+                    }
 
                     String maskFileName = fileName + ".mask";
-                    File maskFile = new File(maskBasDir, maskFileName);
+                    maskFile = new File(maskBasDir, maskFileName);
 
                     if (maskFile.exists()) {
                         continue;
@@ -134,6 +137,9 @@ public class AdminImageService {
         } catch (Exception e) {
             if (file != null)
                 file.deleteOnExit();
+
+            if (maskFile != null)
+                maskFile.deleteOnExit();
             e.printStackTrace();
             return false;
         }
@@ -171,6 +177,15 @@ public class AdminImageService {
                 Response<JSONObject> response = call.execute();
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
+
+                    // 객체가 없고 채점이 안되어 있으면 사진 삭제
+                    if (guideDTO.getObjectComponentList().isEmpty() &&
+                            guideDTO.getPersonComponentList().isEmpty() &&
+                            image.getScore() < 0) {
+                        imageDao.deleteImage(image.getId());
+                        file.deleteOnExit();
+                        continue;
+                    }
 
                     String maskFileName = image.getUrl() + ".mask";
                     File maskFile = new File(maskBaseDir, maskFileName);
