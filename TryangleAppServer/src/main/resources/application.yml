@@ -13,7 +13,7 @@ spring:
         format-sql: true
   devtools:
     restart:
-      exclude: images/**
+      exclude: images/**,masks/**
 
 
 logging:

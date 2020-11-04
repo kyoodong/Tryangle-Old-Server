@@ -31,7 +31,7 @@ public class JsonPlaceholderConfig {
     public OkHttpClient jsonPlaceholderOKHttpClient() {
         return new OkHttpClient.Builder()
 //                .addInterceptor(jsonPlaceholderInterceptor)
-                .connectTimeout(1, TimeUnit.MINUTES)
+                .connectTimeout(5, TimeUnit.MINUTES)
                 .callTimeout(1, TimeUnit.DAYS)
                 .readTimeout(1, TimeUnit.DAYS)
                 .writeTimeout(1, TimeUnit.DAYS)

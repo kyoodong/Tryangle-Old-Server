@@ -1,11 +1,10 @@
 package com.gomson.tryangle.api.image;
 
 import com.gomson.tryangle.dao.ImageDao;
-import com.gomson.tryangle.domain.component.Component;
-import com.gomson.tryangle.domain.component.PersonComponent;
 import com.gomson.tryangle.domain.component.ObjectComponent;
 import com.gomson.tryangle.dto.GuideDTO;
 import com.gomson.tryangle.dto.GuideImageListDTO;
+import com.gomson.tryangle.dto.ObjectComponentListDTO;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -13,11 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,9 @@ public class ImageService {
 
     @Autowired
     private ImageRetrofitService imageRetrofitService;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     public List<ObjectComponent> imageSegmentation(byte[] image) throws IOException, JSONException {
         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image);
@@ -81,7 +86,22 @@ public class ImageService {
         }
     }
 
-    List<ObjectComponent> getComponentListByUrl(String url) {
-        return imageDao.selectComponentByUrl(url);
+    String selectUrlById(long imageId) {
+        return imageDao.selectUrlById(imageId);
+    }
+
+    ObjectComponentListDTO getComponentByUrl(String url) throws IOException {
+        List<ObjectComponent> componentList = imageDao.selectComponentByUrl(url);
+        String fileName = url + ".mask";
+        StringBuffer sb = new StringBuffer();
+        File maskFile = resourceLoader.getResource("classpath:masks/" + fileName).getFile();
+        FileReader reader = new FileReader(maskFile);
+        char[] buffer = new char[1024];
+        int len;
+        while ((len = reader.read(buffer)) > 0) {
+            sb.append(buffer, 0, len);
+        }
+
+        return new ObjectComponentListDTO(componentList, sb.toString());
     }
 }

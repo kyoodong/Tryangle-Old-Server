@@ -7,7 +7,6 @@
     <resultMap id="ObjectComponentMap" type="ObjectComponent">
         <id property="id" column="id"/>
         <result property="area" column="area"/>
-        <result property="maskStr" column="mask"/>
         <result property="roiStr" column="roi"/>
         <result property="clazz" column="object_id"/>
         <association property="centerPoint" javaType="Point">
@@ -18,7 +17,7 @@
 
     <insert id="insertImage" parameterType="Image" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tryangle_image VALUES (
-            0, #{url}, #{author}, #{compositionProblemCount}, #{score}, #{cluster}, NOW(), #{scoredAt}
+            0, #{url}, #{author}, #{score}, #{cluster}, NOW(), #{scoredAt}
         )
     </insert>
 
@@ -30,7 +29,6 @@
             #{objectComponent.centerPoint.x},
             #{objectComponent.centerPoint.y},
             #{objectComponent.area},
-            #{objectComponent.maskStr},
             #{objectComponent.roiStr}
         )
     </insert>
@@ -171,12 +169,6 @@
         WHERE ti.url = #{url}
     </select>
 
-    <select id="selectUnmaskedImageList" resultType="Image">
-        SELECT ti.* FROM tryangle_image_object tio
-        JOIN tryangle_image ti on tio.image_id = ti.id
-        WHERE JSON_EXTRACT(mask, '$[0]') is null
-    </select>
-
     <select id="selectAllImageList" resultType="Image">
         SELECT * FROM tryangle_image
     </select>
@@ -197,5 +189,20 @@
         SET cluster = #{cluster}
         WHERE id = #{imageId}
     </update>
+
+    <delete id="deleteImageObject">
+        DELETE FROM tryangle_image_object
+        WHERE image_id = #{imageId}
+    </delete>
+
+    <delete id="deleteImageDominantColor">
+        DELETE FROM tryangle_image_dominant_color
+        WHERE image_id = #{imageId}
+    </delete>
+
+    <select id="selectUrlById" resultType="String">
+        SELECT url FROM tryangle_image
+        WHERE id = #{imageId}
+    </select>
 
 </mapper>

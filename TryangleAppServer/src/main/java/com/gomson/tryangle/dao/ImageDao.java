@@ -45,6 +45,7 @@ public interface ImageDao {
     List<String> selectImageUrlByCluster(int cluster, List<Integer> colorList);
 
     List<ObjectComponent> selectComponentByUrl(String url);
+    String selectUrlById(long imageId);
 
     List<Image> selectUnmaskedImageList();
     List<Image> selectAllImageList();
@@ -54,4 +55,7 @@ public interface ImageDao {
 
     void updateCluster(@Param("imageId") long imageId,
                        @Param("cluster") int cluster);
+
+    void deleteImageObject(long imageId);
+    void deleteImageDominantColor(long imageId);
 }
