@@ -7,7 +7,6 @@
     <resultMap id="ObjectComponentMap" type="ObjectComponent">
         <id property="id" column="id"/>
         <result property="area" column="area"/>
-        <result property="maskStr" column="mask"/>
         <result property="roiStr" column="roi"/>
         <association property="centerPoint" javaType="Point">
             <result property="x" column="center_x"/>
@@ -17,7 +16,7 @@
 
     <insert id="insertImage" parameterType="Image" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tryangle_image VALUES (
-            0, #{url}, #{author}, #{compositionProblemCount}, #{score}, #{cluster}, NOW(), #{scoredAt}
+            0, #{url}, #{author}, #{score}, #{cluster}, NOW(), #{scoredAt}
         )
     </insert>
 
@@ -29,7 +28,6 @@
             #{objectComponent.centerPoint.x},
             #{objectComponent.centerPoint.y},
             #{objectComponent.area},
-            #{objectComponent.maskStr},
             #{objectComponent.roiStr}
         )
     </insert>
@@ -165,15 +163,9 @@
 
     <select id="selectComponentByUrl" resultMap="ObjectComponentMap">
         SELECT tio.object_id clazz, tio.center_x, tio.center_y, tio.area area,
-               tio.mask mask, tio.roi roi FROM tryangle_image_object tio
+               tio.roi roi FROM tryangle_image_object tio
         JOIN tryangle_image ti on tio.image_id = ti.id
         WHERE ti.url = #{url}
-    </select>
-
-    <select id="selectUnmaskedImageList" resultType="Image">
-        SELECT ti.* FROM tryangle_image_object tio
-        JOIN tryangle_image ti on tio.image_id = ti.id
-        WHERE JSON_EXTRACT(mask, '$[0]') is null
     </select>
 
     <select id="selectAllImageList" resultType="Image">
@@ -195,5 +187,15 @@
         SET cluster = #{cluster}
         WHERE id = #{imageId}
     </update>
+
+    <delete id="deleteImageObject">
+        DELETE FROM tryangle_image_object
+        WHERE image_id = #{imageId}
+    </delete>
+
+    <delete id="deleteImageDominantColor">
+        DELETE FROM tryangle_image_dominant_color
+        WHERE image_id = #{imageId}
+    </delete>
 
 </mapper>

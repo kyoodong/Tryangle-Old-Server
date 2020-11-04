@@ -54,4 +54,7 @@ public interface ImageDao {
 
     void updateCluster(@Param("imageId") long imageId,
                        @Param("cluster") int cluster);
+
+    void deleteImageObject(long imageId);
+    void deleteImageDominantColor(long imageId);
 }

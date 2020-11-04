@@ -11,10 +11,7 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class GuideDTO {
@@ -43,6 +40,7 @@ public class GuideDTO {
     private List<ObjectComponent> objectComponentList;
     private List<PersonComponent> personComponentList;
     private List<Integer> dominantColorList;
+    private ArrayList<byte[]> mask;
     private int cluster = -1;
 
     public GuideDTO(JSONObject jsonObject) {
@@ -73,16 +71,11 @@ public class GuideDTO {
 
                 } else if (component.has("ObjectComponent")) {
                     JSONObject object = component.getJSONObject("ObjectComponent");
-
                     int id = object.getInt("id");
                     int clazz = object.getInt("class");
                     int centerPointX = object.getInt("center_point_x");
                     int centerPointY = object.getInt("center_point_y");
                     int area = object.getInt("area");
-                    String mask = object.getString("mask");
-                    mask = mask.replaceAll("true", "1")
-                            .replaceAll("false", "0")
-                            .replaceAll(" ", "");
                     String roi = object.getString("roi");
 
                     ArrayList<ObjectGuide> guideList = new ArrayList<>();
@@ -117,7 +110,6 @@ public class GuideDTO {
                                 clazz,
                                 new Point(centerPointX, centerPointY),
                                 (float) (imageWidth * imageHeight) / area,
-                                mask,
                                 roi,
                                 pose,
                                 posePoints
@@ -131,7 +123,6 @@ public class GuideDTO {
                                 clazz,
                                 new Point(centerPointX, centerPointY),
                                 (float) (imageWidth * imageHeight) / area,
-                                mask,
                                 roi
                         );
                         objectComponentList.add(objectComponent);
@@ -144,27 +135,14 @@ public class GuideDTO {
                 dominantColorList.add(dominantColorArray.getInt(i));
             }
 
+            JSONArray maskArray = jsonObject.getJSONArray("mask");
+            setMaskStr(maskArray);
+
             int cluster = jsonObject.getInt("cluster");
             this.cluster = cluster;
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    public int getCount() {
-        int count = 0;
-        for (Component component : lineComponentList) {
-            count += component.getGuideList().size();
-        }
-
-        for (Component component : objectComponentList) {
-            count += component.getGuideList().size();
-        }
-
-        for (Component component : personComponentList) {
-            count += component.getGuideList().size();
-        }
-        return count;
     }
 
     public Map<Integer, Integer> getObjectClassCount() {
@@ -177,5 +155,17 @@ public class GuideDTO {
             }
         }
         return map;
+    }
+
+    public void setMaskStr(JSONArray maskArray) throws JSONException {
+        this.mask = new ArrayList<>();
+        for (int i = 0; i < maskArray.length(); i++) {
+            JSONArray arr = maskArray.getJSONArray(i);
+            this.mask.add(new byte[arr.length()]);
+            for (int j = 0; j < arr.length(); j++) {
+                int value = arr.getInt(j);
+                this.mask.get(i)[j] = (byte) value;
+            }
+        }
     }
 }

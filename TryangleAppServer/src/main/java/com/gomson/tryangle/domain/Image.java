@@ -16,7 +16,6 @@ public class Image {
     private long id;
     private String url;
     private String author;
-    private int compositionProblemCount;
     private int score;
     private int cluster;
     private LocalDateTime createdAt;

@@ -37,7 +37,7 @@ public class AdminImageService {
     private ImageRetrofitService imageRetrofitService;
 
     @Transactional
-    boolean insertImageList(String baseDirPath, MultipartFile imageZip) {
+    boolean insertImageList(String imageBaseDir, String maskBasDir, MultipartFile imageZip) {
         File file = null;
         try {
             // zip 파일 체크
@@ -61,7 +61,7 @@ public class AdminImageService {
                     continue;
                 }
 
-                file = new File(baseDirPath, fileName);
+                file = new File(imageBaseDir, fileName);
                 if (file.exists()) {
                     entry = zis.getNextEntry();
                     continue;
@@ -85,11 +85,25 @@ public class AdminImageService {
                 Response<JSONObject> response = call.execute();
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
-                    int guideCount = guideDTO.getCount();
-                    Image image = new Image(0, fileName, String.valueOf(I), guideCount, -1, guideDTO.getCluster(), null, null);
+
+                    // 사람 없으면 패스
+                    if (guideDTO.getPersonComponentList().isEmpty())
+                        continue;
+
+                    String maskFileName = fileName + ".mask";
+                    File maskFile = new File(maskBasDir, maskFileName);
+                    fos = new FileOutputStream(maskFile);
+                    for (byte[] b : guideDTO.getMask()) {
+                        fos.write(b, 0, b.length);
+                    }
+                    fos.close();
+
+                    Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(), null, null);
                     imageDao.insertImage(image);
                     for (ObjectComponent component : guideDTO.getObjectComponentList()) {
-                        imageDao.insertObject(image.getId(), component);
+                        if (component.getClazz() <= 1) {
+                            imageDao.insertObject(image.getId(), component);
+                        }
                     }
 
                     for (LineComponent component : guideDTO.getLineComponentList()) {
@@ -97,6 +111,7 @@ public class AdminImageService {
                     }
 
                     for (PersonComponent component : guideDTO.getPersonComponentList()) {
+                        imageDao.insertObject(image.getId(), component);
                         imageDao.insertHumanPose(component.getId(), component.getPose(), component.getPosePoints());
                     }
 
@@ -128,7 +143,7 @@ public class AdminImageService {
     }
 
     @Transactional
-    Boolean refresh(String baseDir) {
+    Boolean refresh(String imageBaseDir, String maskBaseDir) {
         File file = null;
         Image lastImage = null;
         List<Image> imageList = imageDao.selectAllImageList();
@@ -136,7 +151,7 @@ public class AdminImageService {
         for (Image image : imageList) {
             lastImage = image;
             try {
-                file = new File(baseDir, image.getUrl());
+                file = new File(imageBaseDir, image.getUrl());
                 if (!file.exists()) {
                     imageDao.deleteImage(image.getId());
                     continue;
@@ -150,21 +165,30 @@ public class AdminImageService {
                 Response<JSONObject> response = call.execute();
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
-                    int guideCount = guideDTO.getCount();
-                    Image newImage = new Image(0, image.getUrl(), image.getAuthor(), guideCount, image.getScore(), guideDTO.getCluster(), null, null);
 
-                    int deleteCount = imageDao.deleteImage(image.getId());
-                    if (deleteCount == 0) {
-                        System.out.println("deleteCount is zero");
-                        continue;
+                    String maskFileName = image.getUrl() + ".mask";
+                    File maskFile = new File(maskBaseDir, maskFileName);
+                    FileOutputStream fos = new FileOutputStream(maskFile);
+                    for (byte[] b : guideDTO.getMask()) {
+                        fos.write(b, 0, b.length);
                     }
-
-                    imageDao.insertImage(newImage);
+                    fos.close();
+                    imageDao.updateCluster(image.getId(), guideDTO.getCluster());
+                    imageDao.deleteImageObject(image.getId());
+                    imageDao.deleteImageDominantColor(image.getId());
                     for (LineComponent component : guideDTO.getLineComponentList()) {
                         imageDao.insertEffectiveLine(image.getId(), component);
                     }
 
+                    for (ObjectComponent component : guideDTO.getObjectComponentList()) {
+                        // TODO: 왜 output clazz 가 2 이상이 나올까?
+                        if (component.getClazz() <= 1) {
+                            imageDao.insertObject(image.getId(), component);
+                        }
+                    }
+
                     for (PersonComponent component : guideDTO.getPersonComponentList()) {
+                        imageDao.insertObject(image.getId(), component);
                         imageDao.insertHumanPose(component.getId(), component.getPose(), component.getPosePoints());
                     }
 
@@ -173,16 +197,10 @@ public class AdminImageService {
                     }
 
                     for (int colorId : guideDTO.getDominantColorList()) {
-                        imageDao.insertDominantColor(newImage.getId(), colorId);
+                        imageDao.insertDominantColor(image.getId(), colorId);
                     }
                 }
             } catch (Exception e) {
-                if (file != null)
-                    file.deleteOnExit();
-
-                if (lastImage != null)
-                    imageDao.deleteImage(lastImage.getId());
-
                 e.printStackTrace();
                 return false;
             }
