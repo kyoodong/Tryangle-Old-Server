@@ -8,6 +8,7 @@
         <id property="id" column="id"/>
         <result property="area" column="area"/>
         <result property="roiStr" column="roi"/>
+        <result property="clazz" column="object_id"/>
         <association property="centerPoint" javaType="Point">
             <result property="x" column="center_x"/>
             <result property="y" column="center_y"/>
@@ -95,9 +96,9 @@
         SELECT * FROM tryangle_image
         WHERE author = #{userId}
         AND score = -1
-        <!-- @TODO Single Person 만 리턴되게 함 -->
+        <!-- @TODO Has Person 만 리턴되게 함 -->
         AND id IN (SELECT image_id FROM tryangle_image_object WHERE object_id = 0
-            GROUP BY image_id having COUNT(*) = 1)
+            GROUP BY image_id)
         LIMIT 15
     </select>
 
@@ -162,8 +163,8 @@
     </select>
 
     <select id="selectComponentByUrl" resultMap="ObjectComponentMap">
-        SELECT tio.object_id clazz, tio.center_x, tio.center_y, tio.area area,
-               tio.roi roi FROM tryangle_image_object tio
+        SELECT tio.object_id, tio.center_x, tio.center_y, tio.area area,
+               tio.mask mask, tio.roi roi FROM tryangle_image_object tio
         JOIN tryangle_image ti on tio.image_id = ti.id
         WHERE ti.url = #{url}
     </select>
@@ -180,6 +181,7 @@
     <select id="getNumScoredImage" resultType="Integer">
         SELECT COUNT(*) FROM tryangle_image
         WHERE score != -1
+        AND scored_at >= '2020-11-04'
     </select>
 
     <update id="updateCluster">
