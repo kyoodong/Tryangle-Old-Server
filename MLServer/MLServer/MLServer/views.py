@@ -55,6 +55,8 @@ class ImageGuideView(APIView):
         guider = Guider(image, False)
 
         component_list = list()
+        mask = np.zeros((640, 640), np.uint8)
+        count = 0
         for component in guider.component_list:
             if isinstance(component, LineComponent):
                 component_list.append(component)
@@ -77,17 +79,19 @@ class ImageGuideView(APIView):
                 data['center_point_x'] = component.object.center_point[0]
                 data['center_point_y'] = component.object.center_point[1]
                 data['area'] = component.object.area
-                data['mask'] = [list(y) for y in component.object.mask]
+                mask = np.add(mask, (np.left_shift(component.object.mask.astype(np.uint8), count)))
                 data['roi'] = list(component.object.roi)
                 data['guide_list'] = component.guide_list
                 component_dict['ObjectComponent'] = data
                 component_list.append(component_dict)
+                count += 1
 
         body = {
             "component_list": component_list,
             "dominant_color_list": dominant_colors,
             "image_size": list(image.shape[:2]),
-            "cluster": guider.cluster
+            "cluster": guider.cluster,
+            "mask": [list(y) for y in mask]
         }
         return Response(str(body), status=status.HTTP_200_OK, content_type='application/json')
 
