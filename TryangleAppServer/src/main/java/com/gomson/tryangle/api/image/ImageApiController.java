@@ -2,10 +2,13 @@ package com.gomson.tryangle.api.image;
 
 import com.gomson.tryangle.domain.component.ObjectComponent;
 import com.gomson.tryangle.dto.GuideImageListDTO;
+import com.gomson.tryangle.dto.ObjectComponentListDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -15,6 +18,9 @@ public class ImageApiController {
 
     @Autowired
     private ImageService imageService;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
 
     @GetMapping
@@ -45,11 +51,10 @@ public class ImageApiController {
 
     /**
      * url 에 어떤 컴포넌트가 있는지 알고 싶을 때 사용하는 api
-     * @param url
      * @return
      */
     @GetMapping("component")
-    private List<ObjectComponent> getComponentListByUrl(@RequestParam("url") String url) {
-        return imageService.getComponentListByUrl(url);
+    private ObjectComponentListDTO getComponentListByUrl(@RequestParam("url") String url) throws IOException {
+        return imageService.getComponentByUrl(url);
     }
 }

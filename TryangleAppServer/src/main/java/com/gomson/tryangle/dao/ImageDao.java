@@ -45,6 +45,7 @@ public interface ImageDao {
     List<String> selectImageUrlByCluster(int cluster, List<Integer> colorList);
 
     List<ObjectComponent> selectComponentByUrl(String url);
+    String selectUrlById(long imageId);
 
     List<Image> selectUnmaskedImageList();
     List<Image> selectAllImageList();

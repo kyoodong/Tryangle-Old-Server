@@ -198,4 +198,9 @@
         WHERE image_id = #{imageId}
     </delete>
 
+    <select id="selectUrlById" resultType="String">
+        SELECT url FROM tryangle_image
+        WHERE id = #{imageId}
+    </select>
+
 </mapper>
