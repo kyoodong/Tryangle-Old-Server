@@ -55,7 +55,7 @@ class ImageGuideView(APIView):
         guider = Guider(image, False)
 
         component_list = list()
-        mask = np.zeros((640, 640), np.uint8)
+        mask = np.zeros((image.shape[0], image.shape[1]), np.uint8)
         count = 0
         for component in guider.component_list:
             if isinstance(component, LineComponent):
