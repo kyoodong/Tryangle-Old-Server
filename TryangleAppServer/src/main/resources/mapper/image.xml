@@ -159,6 +159,7 @@
             GROUP BY image_id having COUNT(*) >= 2
         )
         ORDER BY ti.score
+        LIMIT 20
     </select>
 
     <select id="selectComponentByUrl" resultMap="ObjectComponentMap">
@@ -166,6 +167,7 @@
                tio.roi roi FROM tryangle_image_object tio
         JOIN tryangle_image ti on tio.image_id = ti.id
         WHERE ti.url = #{url}
+        ORDER BY tio.object_id
     </select>
 
     <select id="selectAllImageList" resultType="Image">

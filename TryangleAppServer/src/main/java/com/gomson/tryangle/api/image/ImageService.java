@@ -68,6 +68,11 @@ public class ImageService {
 
             GuideDTO guideDTO = new GuideDTO(response.body());
 
+            // 사진 내 객체가 하나도 없는 경우
+            if (guideDTO.getPersonComponentList().isEmpty() && guideDTO.getObjectComponentList().isEmpty()) {
+                return null;
+            }
+
             if (guideDTO.getCluster() >= 0) {
                 imageUrlList.addAll(imageDao.selectImageUrlByCluster(guideDTO.getCluster(), guideDTO.getDominantColorList()));
             } else {
@@ -92,6 +97,10 @@ public class ImageService {
 
     ObjectComponentListDTO getComponentByUrl(String url) throws IOException {
         List<ObjectComponent> componentList = imageDao.selectComponentByUrl(url);
+        int index = 0;
+        for (ObjectComponent c : componentList) {
+            c.setComponentId(index++);
+        }
         String fileName = url + ".mask";
         StringBuffer sb = new StringBuffer();
         File maskFile = resourceLoader.getResource("classpath:masks/" + fileName).getFile();
