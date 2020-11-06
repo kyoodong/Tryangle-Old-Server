@@ -77,11 +77,11 @@ public class ImageService {
                 imageUrlList.addAll(imageDao.selectImageUrlByCluster(guideDTO.getCluster(), guideDTO.getDominantColorList()));
             } else {
                 if (guideDTO.getObjectComponentList().size() > 0) {
-                    imageUrlList.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 50));
+                    imageUrlList.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 30));
                 }
 
                 if (guideDTO.getPersonComponentList().size() > 0) {
-                    imageUrlList.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 50));
+                    imageUrlList.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 30));
                 }
             }
             return new GuideImageListDTO(guideDTO, imageUrlList);

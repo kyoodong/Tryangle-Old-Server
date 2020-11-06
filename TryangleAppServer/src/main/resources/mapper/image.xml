@@ -110,13 +110,16 @@
     </update>
 
     <select id="selectImageUrlByObjects" resultType="String">
-        <foreach collection="objectComponentList" item="object" separator="INTERSECT">
-            SELECT i.url FROM tryangle_image i
-            JOIN tryangle_image_object tio on i.id = tio.image_id
-            WHERE tio.object_id = #{object.clazz}
-            AND tio.area BETWEEN #{object.area} - #{areaThreshold} AND #{object.area} + #{areaThreshold}
-            AND tio.center_x BETWEEN #{object.centerPoint.x} - #{positionThreshold} AND #{object.centerPoint.x} + #{positionThreshold}
-            AND tio.center_y BETWEEN #{object.centerPoint.y} - #{positionThreshold} AND #{object.centerPoint.y} + #{positionThreshold}
+        SELECT ti.url FROM tryangle_image ti
+        WHERE
+        <foreach collection="objectComponentList" item="object" separator="AND">
+            ti.id IN (
+                SELECT tio.image_id FROM tryangle_image_object tio
+                WHERE tio.object_id = #{object.clazz}
+                AND tio.area BETWEEN #{object.area} - #{areaThreshold} AND #{object.area} + #{areaThreshold}
+                AND tio.center_x BETWEEN #{object.centerPoint.x} - #{positionThreshold} AND #{object.centerPoint.x} + #{positionThreshold}
+                AND tio.center_y BETWEEN #{object.centerPoint.y} - #{positionThreshold} AND #{object.centerPoint.y} + #{positionThreshold}
+            )
         </foreach>
     </select>
 
@@ -136,16 +139,19 @@
     </select>
 
     <select id="selectImageUrlByPerson" resultType="String">
-        <foreach collection="personComponentList" item="person" separator="INTERSECT">
-            SELECT i.url FROM tryangle_image i
-            JOIN tryangle_image_object tio on i.id = tio.image_id
-            JOIN tryangle_object_person_pose topp on tio.id = topp.object_id
-            WHERE tio.object_id = #{person.clazz}
-            AND tio.area BETWEEN #{person.area} - #{areaThreshold} AND #{person.area} + #{areaThreshold}
-            AND tio.center_x BETWEEN #{person.centerPoint.x} - #{positionThreshold} AND #{person.centerPoint.x} + #{positionThreshold}
-            AND tio.center_y BETWEEN #{person.centerPoint.y} - #{positionThreshold} AND #{person.centerPoint.y} + #{positionThreshold}
-            AND topp.pose_id = #{person.pose}
-            AND i.cluster = -1
+        SELECT ti.url FROM tryangle_image ti
+        WHERE
+        <foreach collection="objectComponentList" item="person" separator="AND">
+            ti.id IN (
+                SELECT tio.image_id FROM tryangle_image_object tio
+                JOIN tryangle_object_person_pose topp on tio.id = topp.object_id
+                WHERE tio.object_id = #{person.clazz}
+                AND tio.area BETWEEN #{person.area} - #{areaThreshold} AND #{person.area} + #{areaThreshold}
+                AND tio.center_x BETWEEN #{person.centerPoint.x} - #{positionThreshold} AND #{person.centerPoint.x} + #{positionThreshold}
+                AND tio.center_y BETWEEN #{person.centerPoint.y} - #{positionThreshold} AND #{person.centerPoint.y} + #{positionThreshold}
+                AND topp.pose_id = #{person.pose}
+                AND i.cluster = -1
+            )
         </foreach>
     </select>
 
