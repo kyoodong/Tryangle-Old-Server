@@ -70,6 +70,14 @@ public class AdminImageService {
                     continue;
                 }
 
+                String maskFileName = fileName + ".mask";
+                maskFile = new File(maskBasDir, maskFileName);
+
+                if (maskFile.exists()) {
+                    entry = zis.getNextEntry();
+                    continue;
+                }
+
                 final int I = i % 3;
                 i++;
 
@@ -92,13 +100,6 @@ public class AdminImageService {
                     // 오브젝트 없으면 패스
                     if (guideDTO.getPersonComponentList().isEmpty() && guideDTO.getObjectComponentList().isEmpty()) {
                         file.delete();
-                        continue;
-                    }
-
-                    String maskFileName = fileName + ".mask";
-                    maskFile = new File(maskBasDir, maskFileName);
-
-                    if (maskFile.exists()) {
                         continue;
                     }
 
@@ -155,17 +156,26 @@ public class AdminImageService {
     }
 
     @Transactional
-    Boolean refresh(String imageBaseDir, String maskBaseDir) {
+    synchronized Boolean refresh(String imageBaseDir, String maskBaseDir) {
         File file = null;
         Image lastImage = null;
         List<Image> imageList = imageDao.selectAllImageList();
 
-        for (Image image : imageList) {
+        for (int imageCount = 0; imageCount < imageList.size(); imageCount++) {
+            Image image = imageList.get(imageCount);
             lastImage = image;
+            System.out.println(imageCount + "/" + imageList.size() + " 작업중");
             try {
                 file = new File(imageBaseDir, image.getUrl());
                 if (!file.exists()) {
                     imageDao.deleteImage(image.getId());
+                    continue;
+                }
+
+                String maskFileName = image.getUrl() + ".mask";
+                File maskFile = new File(maskBaseDir, maskFileName);
+                if (maskFile.exists()) {
+                    System.out.println("maskFile already exist");
                     continue;
                 }
 
@@ -174,6 +184,7 @@ public class AdminImageService {
                 MultipartBody.Part body = MultipartBody.Part.createFormData(
                         "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
                 Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
+                System.out.println("request!");
                 Response<JSONObject> response = call.execute();
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
@@ -187,8 +198,6 @@ public class AdminImageService {
                         continue;
                     }
 
-                    String maskFileName = image.getUrl() + ".mask";
-                    File maskFile = new File(maskBaseDir, maskFileName);
                     FileWriter writer = new FileWriter(maskFile);
                     for (byte[] b : guideDTO.getMask()) {
                         String data = Base64.getEncoder().encodeToString(b);
@@ -217,6 +226,11 @@ public class AdminImageService {
 
                     for (int colorId : guideDTO.getDominantColorList()) {
                         imageDao.insertDominantColor(image.getId(), colorId);
+                    }
+                } else {
+                    if (image.getScore() < 0) {
+                        imageDao.deleteImage(image.getId());
+                        file.deleteOnExit();
                     }
                 }
             } catch (Exception e) {
