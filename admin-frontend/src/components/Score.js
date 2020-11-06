@@ -9,8 +9,13 @@ function LoadingButton(props) {
   const loadImageList = async (userId) => {
     axios.get(`${process.env.REACT_APP_SPRING_SERVER_URL}api/admin/image/${userId}`)
       .then(({data}) => {
-        setLoading(false);
-        props.onLoadImage(data)
+        console.log(data.length)
+        if (data.length === 0) {
+          alert('이미지가 없습니다. 다른 유저로 이동하세요')
+        } else {
+          setLoading(false);
+          props.onLoadImage(data)
+        }
       })
       .catch(e => {
         console.error(e);
