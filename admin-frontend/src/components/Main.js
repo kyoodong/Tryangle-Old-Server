@@ -18,6 +18,10 @@ class Main extends React.Component {
         <Button variant="outline-dark">
           <Link to="insert-image">사진추가</Link>
         </Button>
+
+        <Button variant="outline-dark">
+          <Link to="insert-spot-image">스팟사진추가</Link>
+        </Button>
       </div>
     );
   }
