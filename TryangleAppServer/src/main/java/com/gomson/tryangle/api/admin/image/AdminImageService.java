@@ -99,7 +99,8 @@ public class AdminImageService {
 
                     // 오브젝트 없으면 패스
                     if (guideDTO.getPersonComponentList().isEmpty() && guideDTO.getObjectComponentList().isEmpty()) {
-                        file.delete();
+                        file.deleteOnExit();
+                        entry = zis.getNextEntry();
                         continue;
                     }
 
