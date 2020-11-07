@@ -54,6 +54,7 @@ public class AdminImageService {
             byte[] buffer = new byte[1024];
             int i = 0;
             while (entry != null) {
+                System.out.println("i : " + i);
                 String fileName = entry.getName();
                 int slashIndex = fileName.lastIndexOf("/");
                 if (slashIndex > 0) {
@@ -67,6 +68,7 @@ public class AdminImageService {
                 file = new File(imageBaseDir, fileName);
                 if (file.exists()) {
                     entry = zis.getNextEntry();
+                    System.out.println("이미지 파일 이미 존재");
                     continue;
                 }
 
@@ -74,6 +76,7 @@ public class AdminImageService {
                 maskFile = new File(maskBasDir, maskFileName);
 
                 if (maskFile.exists()) {
+                    System.out.println("마스크 파일 이미 존재");
                     entry = zis.getNextEntry();
                     continue;
                 }
@@ -101,6 +104,7 @@ public class AdminImageService {
                     if (guideDTO.getPersonComponentList().isEmpty() && guideDTO.getObjectComponentList().isEmpty()) {
                         file.deleteOnExit();
                         entry = zis.getNextEntry();
+                        System.out.println("객체 없음");
                         continue;
                     }
 
@@ -116,6 +120,7 @@ public class AdminImageService {
                     for (ObjectComponent component : guideDTO.getObjectComponentList()) {
                         imageDao.insertObject(image.getId(), component);
                     }
+                    
 
                     for (LineComponent component : guideDTO.getLineComponentList()) {
                         imageDao.insertEffectiveLine(image.getId(), component);
@@ -233,6 +238,7 @@ public class AdminImageService {
                         imageDao.deleteImage(image.getId());
                         file.deleteOnExit();
                     }
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
