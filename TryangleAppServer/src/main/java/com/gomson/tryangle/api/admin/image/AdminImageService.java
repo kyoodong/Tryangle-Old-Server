@@ -2,8 +2,7 @@ package com.gomson.tryangle.api.admin.image;
 
 import com.gomson.tryangle.api.image.ImageRetrofitService;
 import com.gomson.tryangle.dao.ImageDao;
-import com.gomson.tryangle.domain.*;
-import com.gomson.tryangle.domain.component.Component;
+import com.gomson.tryangle.domain.Image;
 import com.gomson.tryangle.domain.component.LineComponent;
 import com.gomson.tryangle.domain.component.ObjectComponent;
 import com.gomson.tryangle.domain.component.PersonComponent;
@@ -110,7 +109,7 @@ public class AdminImageService {
                     }
                     writer.close();
 
-                    Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(), null, null);
+                    Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(), null, null, null);
                     imageDao.insertImage(image);
                     for (ObjectComponent component : guideDTO.getObjectComponentList()) {
                         imageDao.insertObject(image.getId(), component);

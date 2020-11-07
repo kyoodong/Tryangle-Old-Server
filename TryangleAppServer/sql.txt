@@ -24,7 +24,7 @@ ALTER TABLE tryangle.tryangle_image
 
 CREATE TABLE tryangle.tryangle_spot
 (
-    `id`    INT            NOT NULL    COMMENT '장소 아이디',
+    `id`    INT            NOT NULL    AUTO_INCREMENT COMMENT '장소 아이디',
     `name`  VARCHAR(45)    NOT NULL    COMMENT '이름',
     `x`     FLOAT          NOT NULL    COMMENT 'x좌표',
     `y`     FLOAT          NOT NULL    COMMENT 'y좌표',

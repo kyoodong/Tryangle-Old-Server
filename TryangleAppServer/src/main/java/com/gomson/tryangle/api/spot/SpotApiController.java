@@ -1,4 +1,4 @@
-package com.gomson.tryangle.api.location;
+package com.gomson.tryangle.api.spot;
 
 import com.gomson.tryangle.domain.Image;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +12,15 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("api/location")
-public class LocationApiController {
+public class SpotApiController {
 
     @Autowired
-    private LocationService locationService;
+    private SpotService spotService;
 
 
-    @PostMapping("image")
-    private List<Image> addLocationImage() {
-
-    }
+//    @PostMapping("image")
+//    private List<Image> addLocationImage() {
+//
+//    }
 
 }
