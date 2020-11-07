@@ -1,26 +1,22 @@
 package com.gomson.tryangle.api.spot;
 
-import com.gomson.tryangle.domain.Image;
+import com.gomson.tryangle.domain.Spot;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("api/location")
+@RequestMapping("api/spot")
 public class SpotApiController {
 
     @Autowired
     private SpotService spotService;
 
-
-//    @PostMapping("image")
-//    private List<Image> addLocationImage() {
-//
-//    }
+    @GetMapping
+    private List<Spot> getNearSpotList(@RequestParam double x, @RequestParam double y) {
+        return spotService.getNearSpotList(x, y);
+    }
 
 }

@@ -15,4 +15,10 @@
             SELECT LAST_INSERT_ID()
         </selectKey>
     </insert>
+
+    <select id="selectNearSpotList" resultType="Spot">
+        SELECT * FROM tryangle_spot
+        WHERE x BETWEEN #{x} - 0.05 AND #{x} + 0.05
+        AND y BETWEEN #{y} - 0.05 AND #{y} + 0.05
+    </select>
 </mapper>
