@@ -213,4 +213,9 @@
         WHERE id = #{imageId}
     </select>
 
+    <select id="selectImageUrlBySpotId" resultType="String">
+        SELECT url FROM tryangle_image
+        WHERE spot_id = #{spotId}
+    </select>
+
 </mapper>
