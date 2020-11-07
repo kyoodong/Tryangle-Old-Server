@@ -38,7 +38,7 @@ public class AdminImageService {
     private ImageRetrofitService imageRetrofitService;
 
     @Transactional
-    boolean insertImageList(String imageBaseDir, String maskBasDir, MultipartFile imageZip) {
+    boolean insertImageList(String imageBaseDir, String maskBasDir, MultipartFile imageZip, Long spotId) {
         File file = null;
         File maskFile = null;
         try {
@@ -65,6 +65,7 @@ public class AdminImageService {
 
                 file = new File(imageBaseDir, fileName);
                 if (file.exists()) {
+                    System.out.println("이미지 파일 이미 존재");
                     entry = zis.getNextEntry();
                     continue;
                 }
@@ -73,6 +74,7 @@ public class AdminImageService {
                 maskFile = new File(maskBasDir, maskFileName);
 
                 if (maskFile.exists()) {
+                    System.out.println("마스크 파일 이미 존재");
                     entry = zis.getNextEntry();
                     continue;
                 }
@@ -98,7 +100,9 @@ public class AdminImageService {
 
                     // 오브젝트 없으면 패스
                     if (guideDTO.getPersonComponentList().isEmpty() && guideDTO.getObjectComponentList().isEmpty()) {
-                        file.delete();
+                        file.deleteOnExit();
+                        entry = zis.getNextEntry();
+                        System.out.println("가이드 오브젝트 없음");
                         continue;
                     }
 
@@ -109,7 +113,7 @@ public class AdminImageService {
                     }
                     writer.close();
 
-                    Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(), null, null, null);
+                    Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(), null, null, spotId);
                     imageDao.insertImage(image);
                     for (ObjectComponent component : guideDTO.getObjectComponentList()) {
                         imageDao.insertObject(image.getId(), component);

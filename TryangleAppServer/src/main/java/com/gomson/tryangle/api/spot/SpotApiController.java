@@ -20,7 +20,7 @@ public class SpotApiController {
         return spotService.getNearSpotList(x, y);
     }
 
-    @GetMapping
+    @GetMapping("image")
     private List<String> getImageUrlBySpotId(@RequestParam long spotId) {
         return spotService.getImageUrlBySpotId(spotId);
     }
