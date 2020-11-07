@@ -11,7 +11,6 @@ class InsertImage extends React.Component {
         <Form method="post" action={process.env.REACT_APP_SPRING_SERVER_URL + "api/admin/image/insert"}
           encType="multipart/form-data">
           <Form.File
-            multiple
             id="imageZip"
             name="imageZip"/>
           <Button variant="primary" type="submit">확인</Button>

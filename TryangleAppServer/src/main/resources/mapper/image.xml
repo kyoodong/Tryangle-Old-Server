@@ -17,7 +17,7 @@
 
     <insert id="insertImage" parameterType="Image" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tryangle_image VALUES (
-            0, #{url}, #{author}, #{score}, #{cluster}, NOW(), #{scoredAt}
+            0, #{url}, #{author}, #{score}, #{cluster}, NOW(), #{scoredAt}, #{spotId}
         )
     </insert>
 
@@ -110,13 +110,16 @@
     </update>
 
     <select id="selectImageUrlByObjects" resultType="String">
-        <foreach collection="objectComponentList" item="object" separator="INTERSECT">
-            SELECT i.url FROM tryangle_image i
-            JOIN tryangle_image_object tio on i.id = tio.image_id
-            WHERE tio.object_id = #{object.clazz}
-            AND tio.area BETWEEN #{object.area} - #{areaThreshold} AND #{object.area} + #{areaThreshold}
-            AND tio.center_x BETWEEN #{object.centerPoint.x} - #{positionThreshold} AND #{object.centerPoint.x} + #{positionThreshold}
-            AND tio.center_y BETWEEN #{object.centerPoint.y} - #{positionThreshold} AND #{object.centerPoint.y} + #{positionThreshold}
+        SELECT ti.url FROM tryangle_image ti
+        WHERE
+        <foreach collection="objectComponentList" item="object" separator="AND">
+            ti.id IN (
+                SELECT tio.image_id FROM tryangle_image_object tio
+                WHERE tio.object_id = #{object.clazz}
+                AND tio.area BETWEEN #{object.area} - #{areaThreshold} AND #{object.area} + #{areaThreshold}
+                AND tio.center_x BETWEEN #{object.centerPoint.x} - #{positionThreshold} AND #{object.centerPoint.x} + #{positionThreshold}
+                AND tio.center_y BETWEEN #{object.centerPoint.y} - #{positionThreshold} AND #{object.centerPoint.y} + #{positionThreshold}
+            )
         </foreach>
     </select>
 
@@ -136,17 +139,20 @@
     </select>
 
     <select id="selectImageUrlByPerson" resultType="String">
-        <foreach collection="personComponentList" item="person" separator="INTERSECT">
-            SELECT i.url FROM tryangle_image i
-            JOIN tryangle_image_object tio on i.id = tio.image_id
-            JOIN tryangle_object_person_pose topp on tio.id = topp.object_id
-            WHERE tio.object_id = #{person.clazz}
-            AND tio.area BETWEEN #{person.area} - #{areaThreshold} AND #{person.area} + #{areaThreshold}
-            AND tio.center_x BETWEEN #{person.centerPoint.x} - #{positionThreshold} AND #{person.centerPoint.x} + #{positionThreshold}
-            AND tio.center_y BETWEEN #{person.centerPoint.y} - #{positionThreshold} AND #{person.centerPoint.y} + #{positionThreshold}
-            AND topp.pose_id = #{person.pose}
-            AND i.cluster = -1
+        SELECT ti.url FROM tryangle_image ti
+        WHERE
+        <foreach collection="personComponentList" item="person" separator="AND">
+            ti.id IN (
+                SELECT tio.image_id FROM tryangle_image_object tio
+                JOIN tryangle_object_person_pose topp on tio.id = topp.object_id
+                WHERE tio.object_id = #{person.clazz}
+                AND tio.area BETWEEN #{person.area} - #{areaThreshold} AND #{person.area} + #{areaThreshold}
+                AND tio.center_x BETWEEN #{person.centerPoint.x} - #{positionThreshold} AND #{person.centerPoint.x} + #{positionThreshold}
+                AND tio.center_y BETWEEN #{person.centerPoint.y} - #{positionThreshold} AND #{person.centerPoint.y} + #{positionThreshold}
+                AND topp.pose_id = #{person.pose}
+            )
         </foreach>
+        AND 0 > ti.cluster
     </select>
 
     <select id="selectImageUrlByCluster" resultType="String">
@@ -160,13 +166,15 @@
             GROUP BY image_id having COUNT(*) >= 2
         )
         ORDER BY ti.score
+        LIMIT 20
     </select>
 
     <select id="selectComponentByUrl" resultMap="ObjectComponentMap">
         SELECT tio.object_id, tio.center_x, tio.center_y, tio.area area,
-               tio.mask mask, tio.roi roi FROM tryangle_image_object tio
+               tio.roi roi FROM tryangle_image_object tio
         JOIN tryangle_image ti on tio.image_id = ti.id
         WHERE ti.url = #{url}
+        ORDER BY tio.object_id
     </select>
 
     <select id="selectAllImageList" resultType="Image">
@@ -203,6 +211,11 @@
     <select id="selectUrlById" resultType="String">
         SELECT url FROM tryangle_image
         WHERE id = #{imageId}
+    </select>
+
+    <select id="selectImageUrlBySpotId" resultType="String">
+        SELECT url FROM tryangle_image
+        WHERE spot_id = #{spotId}
     </select>
 
 </mapper>

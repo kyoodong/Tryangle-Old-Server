@@ -2,8 +2,7 @@ package com.gomson.tryangle.api.admin.image;
 
 import com.gomson.tryangle.api.image.ImageRetrofitService;
 import com.gomson.tryangle.dao.ImageDao;
-import com.gomson.tryangle.domain.*;
-import com.gomson.tryangle.domain.component.Component;
+import com.gomson.tryangle.domain.Image;
 import com.gomson.tryangle.domain.component.LineComponent;
 import com.gomson.tryangle.domain.component.ObjectComponent;
 import com.gomson.tryangle.domain.component.PersonComponent;
@@ -39,7 +38,7 @@ public class AdminImageService {
     private ImageRetrofitService imageRetrofitService;
 
     @Transactional
-    boolean insertImageList(String imageBaseDir, String maskBasDir, MultipartFile imageZip) {
+    boolean insertImageList(String imageBaseDir, String maskBasDir, MultipartFile imageZip, Long spotId) {
         File file = null;
         File maskFile = null;
         try {
@@ -67,6 +66,7 @@ public class AdminImageService {
 
                 file = new File(imageBaseDir, fileName);
                 if (file.exists()) {
+                    System.out.println("이미지 파일 이미 존재");
                     entry = zis.getNextEntry();
                     System.out.println("이미지 파일 이미 존재");
                     continue;
@@ -104,7 +104,7 @@ public class AdminImageService {
                     if (guideDTO.getPersonComponentList().isEmpty() && guideDTO.getObjectComponentList().isEmpty()) {
                         file.deleteOnExit();
                         entry = zis.getNextEntry();
-                        System.out.println("객체 없음");
+                        System.out.println("가이드 오브젝트 없음");
                         continue;
                     }
 
@@ -115,7 +115,7 @@ public class AdminImageService {
                     }
                     writer.close();
 
-                    Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(), null, null);
+                    Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(), null, null, spotId);
                     imageDao.insertImage(image);
                     for (ObjectComponent component : guideDTO.getObjectComponentList()) {
                         imageDao.insertObject(image.getId(), component);

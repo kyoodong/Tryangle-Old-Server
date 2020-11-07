@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gomson.tryangle.dao.SpotDao">
+
+    <insert id="insertSpot" parameterType="Spot">
+        INSERT INTO tryangle_spot VALUES (
+            #{id},
+            #{name},
+            #{x},
+            #{y}
+        )
+        <selectKey resultType="Integer" keyProperty="id" keyColumn="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <select id="selectNearSpotList" resultType="Spot">
+        SELECT * FROM tryangle_spot
+        WHERE x BETWEEN #{x} - 0.05 AND #{x} + 0.05
+        AND y BETWEEN #{y} - 0.05 AND #{y} + 0.05
+    </select>
+</mapper>

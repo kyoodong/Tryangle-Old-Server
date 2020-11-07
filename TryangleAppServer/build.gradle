@@ -50,6 +50,10 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation('junit:junit:4.13')
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin
+	implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.11.3"
+
 }
 
 test {

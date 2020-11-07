@@ -20,5 +20,6 @@ public class Image {
     private int cluster;
     private LocalDateTime createdAt;
     private LocalDateTime scoredAt;
+    private Long spotId = null;
 
 }
