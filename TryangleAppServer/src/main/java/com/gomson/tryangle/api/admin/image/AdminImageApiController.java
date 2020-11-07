@@ -27,7 +27,18 @@ public class AdminImageApiController {
         return adminImageService.insertImageList(
                 resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",
                 resourceLoader.getResource("classpath:masks").getFile().getAbsolutePath() + "/",
-                imageZip);
+                imageZip,
+                null);
+    }
+
+    @PostMapping("spot/insert")
+    private boolean insertImageList(@RequestParam("imageZip") MultipartFile imageZip, @RequestParam long spotId)
+            throws IOException {
+        return adminImageService.insertImageList(
+                resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",
+                resourceLoader.getResource("classpath:masks").getFile().getAbsolutePath() + "/",
+                imageZip,
+                spotId);
     }
 
     @GetMapping("{userId}")

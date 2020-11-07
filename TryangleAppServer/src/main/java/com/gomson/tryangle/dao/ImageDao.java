@@ -58,4 +58,6 @@ public interface ImageDao {
 
     void deleteImageObject(long imageId);
     void deleteImageDominantColor(long imageId);
+
+    List<String> selectImageUrlBySpotId(long spotId);
 }
