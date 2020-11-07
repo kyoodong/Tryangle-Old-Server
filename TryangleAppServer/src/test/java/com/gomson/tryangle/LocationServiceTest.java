@@ -19,7 +19,7 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WebConfig.class)
 @SpringBootTest
-class ImageServiceTest {
+class LocationServiceTest {
 
 	@Autowired
 	private ApplicationContext applicationContext;

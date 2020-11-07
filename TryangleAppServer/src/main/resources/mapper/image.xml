@@ -17,7 +17,7 @@
 
     <insert id="insertImage" parameterType="Image" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tryangle_image VALUES (
-            0, #{url}, #{author}, #{score}, #{cluster}, NOW(), #{scoredAt}
+            0, #{url}, #{author}, #{score}, #{cluster}, NOW(), #{scoredAt}, #{spotId}
         )
     </insert>
 
@@ -141,7 +141,7 @@
     <select id="selectImageUrlByPerson" resultType="String">
         SELECT ti.url FROM tryangle_image ti
         WHERE
-        <foreach collection="objectComponentList" item="person" separator="AND">
+        <foreach collection="personComponentList" item="person" separator="AND">
             ti.id IN (
                 SELECT tio.image_id FROM tryangle_image_object tio
                 JOIN tryangle_object_person_pose topp on tio.id = topp.object_id
@@ -150,9 +150,9 @@
                 AND tio.center_x BETWEEN #{person.centerPoint.x} - #{positionThreshold} AND #{person.centerPoint.x} + #{positionThreshold}
                 AND tio.center_y BETWEEN #{person.centerPoint.y} - #{positionThreshold} AND #{person.centerPoint.y} + #{positionThreshold}
                 AND topp.pose_id = #{person.pose}
-                AND i.cluster = -1
             )
         </foreach>
+        AND 0 > ti.cluster
     </select>
 
     <select id="selectImageUrlByCluster" resultType="String">
@@ -171,7 +171,7 @@
 
     <select id="selectComponentByUrl" resultMap="ObjectComponentMap">
         SELECT tio.object_id, tio.center_x, tio.center_y, tio.area area,
-               tio.mask mask, tio.roi roi FROM tryangle_image_object tio
+               tio.roi roi FROM tryangle_image_object tio
         JOIN tryangle_image ti on tio.image_id = ti.id
         WHERE ti.url = #{url}
         ORDER BY tio.object_id
