@@ -10,11 +10,14 @@ CREATE TABLE tryangle.tryangle_user
 
 CREATE TABLE tryangle.tryangle_image
 (
-    `id`       INT             NOT NULL    AUTO_INCREMENT COMMENT '아이디',
-    `url`      VARCHAR(300)    NOT NULL    COMMENT '이미지 주소',
-    `author`   VARCHAR(300)    NOT NULL    COMMENT '촬영자',
-    `score`    INT             NOT NULL    COMMENT '자체 평가 점수',
-    `spot_id`  INT             NULL        COMMENT '장소',
+    `id`          INT             NOT NULL    AUTO_INCREMENT COMMENT '아이디',
+    `url`         VARCHAR(300)    NOT NULL    COMMENT '이미지 주소',
+    `author`      VARCHAR(300)    NOT NULL    COMMENT '촬영자',
+    `score`       INT             NOT NULL    COMMENT '자체 평가 점수',
+    `cluster`     INT             NOT NULL    COMMENT '분류 아이디',
+    `created_at`  DATETIME        NULL        COMMENT '이미지 생성 날짜 시간',
+    `scored_at`   DATETIME        NULL        COMMENT '채점 날짜 시간',
+    `spot_id`     INT             NULL        COMMENT '장소 아이디',
     PRIMARY KEY (id)
 );
 

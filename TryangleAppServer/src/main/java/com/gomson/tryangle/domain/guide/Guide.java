@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Guide {
+abstract public class Guide {
 
     private int guideId;
 

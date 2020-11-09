@@ -110,7 +110,7 @@
     </update>
 
     <select id="selectImageUrlByObjects" resultType="String">
-        SELECT ti.url FROM tryangle_image ti
+        SELECT DISTINCT ti.url FROM tryangle_image ti
         WHERE
         <foreach collection="objectComponentList" item="object" separator="AND">
             ti.id IN (
@@ -139,7 +139,7 @@
     </select>
 
     <select id="selectImageUrlByPerson" resultType="String">
-        SELECT ti.url FROM tryangle_image ti
+        SELECT DISTINCT ti.url FROM tryangle_image ti
         WHERE
         <foreach collection="personComponentList" item="person" separator="AND">
             ti.id IN (
@@ -156,16 +156,18 @@
     </select>
 
     <select id="selectImageUrlByCluster" resultType="String">
-        SELECT ti.url FROM tryangle_image ti JOIN tryangle_image_dominant_color tidc ON ti.id = tidc.image_id
-        WHERE cluster = #{cluster}
-        AND ti.id IN (
-            SELECT image_id FROM tryangle_image_dominant_color WHERE color_id IN
-            <foreach collection="colorList" item="color" index="index" separator="," open="(" close=")">
-                #{color}
-            </foreach>
-            GROUP BY image_id having COUNT(*) >= 2
-        )
-        ORDER BY ti.score
+        SELECT DISTINCT a.url FROM (
+            SELECT ti.url FROM tryangle_image ti JOIN tryangle_image_dominant_color tidc ON ti.id = tidc.image_id
+            WHERE cluster = #{cluster}
+            AND ti.id IN (
+                SELECT image_id FROM tryangle_image_dominant_color WHERE color_id IN
+                <foreach collection="colorList" item="color" index="index" separator="," open="(" close=")">
+                    #{color}
+                </foreach>
+                GROUP BY image_id having COUNT(*) >= 2
+            )
+            ORDER BY ti.score
+        ) a
         LIMIT 20
     </select>
 
