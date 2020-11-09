@@ -121,6 +121,7 @@
                 AND tio.center_y BETWEEN #{object.centerPoint.y} - #{positionThreshold} AND #{object.centerPoint.y} + #{positionThreshold}
             )
         </foreach>
+        AND ti.score >= 4
     </select>
 
     <select id="selectImageByObject" resultType="Image">
@@ -139,8 +140,10 @@
     </select>
 
     <select id="selectImageUrlByPerson" resultType="String">
-        SELECT DISTINCT ti.url FROM tryangle_image ti
-        WHERE
+        SELECT ti.url FROM tryangle_image ti
+        JOIN tryangle_image_object tio on ti.id = tio.image_id
+        WHERE object_id = 0
+        AND
         <foreach collection="personComponentList" item="person" separator="AND">
             ti.id IN (
                 SELECT tio.image_id FROM tryangle_image_object tio
@@ -152,7 +155,10 @@
                 AND topp.pose_id = #{person.pose}
             )
         </foreach>
-        AND 0 > ti.cluster
+        AND ti.score >= 4
+        GROUP BY ti.url, ti.score
+        HAVING COUNT(*) = ${personComponentList.size}
+        ORDER BY ti.score DESC
     </select>
 
     <select id="selectImageUrlByCluster" resultType="String">
@@ -166,7 +172,7 @@
                 </foreach>
                 GROUP BY image_id having COUNT(*) >= 2
             )
-            ORDER BY ti.score
+            ORDER BY ti.score DESC
         ) a
         LIMIT 20
     </select>

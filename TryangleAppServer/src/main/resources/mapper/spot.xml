@@ -4,6 +4,17 @@
 
 <mapper namespace="com.gomson.tryangle.dao.SpotDao">
 
+    <resultMap id="SpotMap" type="Spot">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="x" column="x"/>
+        <result property="y" column="y"/>
+        <result property="name" column="name"/>
+        <collection property="imageUrlList"
+                    select="com.gomson.tryangle.dao.ImageDao.selectImageUrlBySpotId"
+                    column="{spotId=id}"/>
+    </resultMap>
+
     <insert id="insertSpot" parameterType="Spot">
         INSERT INTO tryangle_spot VALUES (
             #{id},
@@ -16,7 +27,7 @@
         </selectKey>
     </insert>
 
-    <select id="selectNearSpotList" resultType="Spot">
+    <select id="selectNearSpotList" resultMap="SpotMap">
         SELECT * FROM tryangle_spot
         WHERE x BETWEEN #{x} - 0.05 AND #{x} + 0.05
         AND y BETWEEN #{y} - 0.05 AND #{y} + 0.05
