@@ -66,7 +66,6 @@ public class AdminImageService {
 
                 file = new File(imageBaseDir, fileName);
                 if (file.exists()) {
-                    System.out.println("이미지 파일 이미 존재");
                     entry = zis.getNextEntry();
                     System.out.println("이미지 파일 이미 존재");
                     continue;
@@ -102,7 +101,8 @@ public class AdminImageService {
 
                     // 오브젝트 없으면 패스
                     if (guideDTO.getPersonComponentList().isEmpty() && guideDTO.getObjectComponentList().isEmpty()) {
-                        file.deleteOnExit();
+                        // 나중에 이미지 파일은 있는데 db 에 없는것들 다 지워줘야함
+//                        file.deleteOnExit();
                         entry = zis.getNextEntry();
                         System.out.println("가이드 오브젝트 없음");
                         continue;

@@ -1,6 +1,7 @@
 package com.gomson.tryangle.api.image;
 
 import com.gomson.tryangle.dao.ImageDao;
+import com.gomson.tryangle.domain.component.Component;
 import com.gomson.tryangle.domain.component.ObjectComponent;
 import com.gomson.tryangle.dto.GuideDTO;
 import com.gomson.tryangle.dto.GuideImageListDTO;
