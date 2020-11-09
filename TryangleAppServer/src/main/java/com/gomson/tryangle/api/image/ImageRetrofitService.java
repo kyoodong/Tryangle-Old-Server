@@ -21,4 +21,8 @@ public interface ImageRetrofitService {
     @Multipart
     @POST("image-segmentation")
     Call<JSONObject> segmentImage(@Part MultipartBody.Part image);
+
+    @Multipart
+    @POST("extract-feature")
+    Call<Boolean> extractFeature(@Part MultipartBody.Part image);
 }
