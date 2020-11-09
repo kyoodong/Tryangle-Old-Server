@@ -2,6 +2,7 @@ package com.gomson.tryangle.api.image;
 
 import com.gomson.tryangle.dao.ImageDao;
 import com.gomson.tryangle.domain.component.ObjectComponent;
+import com.gomson.tryangle.domain.guide.Guide;
 import com.gomson.tryangle.dto.GuideDTO;
 import com.gomson.tryangle.dto.GuideImageListDTO;
 import com.gomson.tryangle.dto.ObjectComponentListDTO;
@@ -22,7 +23,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ImageService {
@@ -73,17 +76,18 @@ public class ImageService {
                 return null;
             }
 
-            if (guideDTO.getCluster() >= 0) {
-                imageUrlList.addAll(imageDao.selectImageUrlByCluster(guideDTO.getCluster(), guideDTO.getDominantColorList()));
-            } else {
-                if (guideDTO.getObjectComponentList().size() > 0) {
-                    imageUrlList.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 30));
-                }
-
+//            if (guideDTO.getCluster() >= 0) {
+//                imageUrlList.addAll(imageDao.selectImageUrlByCluster(guideDTO.getCluster(), guideDTO.getDominantColorList()));
+//            } else {
+                Set<String> set = new HashSet();
                 if (guideDTO.getPersonComponentList().size() > 0) {
-                    imageUrlList.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 30));
+                    set.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 30));
                 }
-            }
+                if (guideDTO.getObjectComponentList().size() > 0) {
+                    set.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 30));
+                }
+                imageUrlList.addAll(set);
+//            }
             return new GuideImageListDTO(guideDTO, imageUrlList);
         } catch (IOException e) {
             e.printStackTrace();
