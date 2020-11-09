@@ -15,13 +15,7 @@ public class SpotApiController {
     private SpotService spotService;
 
     @GetMapping
-    private List<Spot> getNearSpotList(@RequestParam double x, @RequestParam double y) {
-        return spotService.getNearSpotList(x, y);
+    private List<Spot> getSpotByLocation(@RequestParam("x") double x, @RequestParam("y") double y) {
+        return spotService.getSpotByLocation(x, y);
     }
-
-    @GetMapping("image")
-    private List<String> getImageUrlBySpotId(@RequestParam long spotId) {
-        return spotService.getImageUrlBySpotId(spotId);
-    }
-
 }
