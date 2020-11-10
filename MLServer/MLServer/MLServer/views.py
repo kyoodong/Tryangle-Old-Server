@@ -13,6 +13,7 @@ import process.color as color_guide
 from process.object import Human, Object
 import matplotlib.pyplot as plt
 from retrieval.feature.tf_extractor import extract_individual
+from retrieval.image_retrieval import certain_retrieval
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -104,3 +105,14 @@ class ImageExtractFeatureView(APIView):
         image = cv2.imdecode(np.frombuffer(file.file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
         result = extract_individual(image, name)
         return Response(result, status=status.HTTP_200_OK, content_type='application/json')
+
+
+class SortForegroundImageView(APIView):
+    def post(self, request, format=None):
+        file = request.FILES['file']
+        image_list = request.POST.getlist('imageList')
+        image_list = list(map(lambda x: x.replace('"', ''), image_list))
+        image = cv2.imdecode(np.frombuffer(file.file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        result = certain_retrieval(image, image_list, 'output')
+        return Response(result, status=status.HTTP_200_OK, content_type='application/json')
+
