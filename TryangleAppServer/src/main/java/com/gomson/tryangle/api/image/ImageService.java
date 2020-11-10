@@ -2,7 +2,6 @@ package com.gomson.tryangle.api.image;
 
 import com.gomson.tryangle.dao.ImageDao;
 import com.gomson.tryangle.dao.SpotDao;
-import com.gomson.tryangle.domain.Spot;
 import com.gomson.tryangle.domain.component.ObjectComponent;
 import com.gomson.tryangle.dto.GuideDTO;
 import com.gomson.tryangle.dto.GuideImageListDTO;
@@ -67,7 +66,7 @@ public class ImageService {
             List<String> imageUrlList = new ArrayList<>();
             RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), image.getBytes());
             MultipartBody.Part body = MultipartBody.Part.createFormData(
-                    "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
+                    "file", System.currentTimeMillis() + ".jpeg", requestBody);
             Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
             Response<JSONObject> response = call.execute();
             if (!response.isSuccessful())

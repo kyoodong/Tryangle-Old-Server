@@ -121,6 +121,7 @@
                 AND tio.center_y BETWEEN #{object.centerPoint.y} - #{positionThreshold} AND #{object.centerPoint.y} + #{positionThreshold}
             )
         </foreach>
+        AND ti.score >= 4
     </select>
 
     <select id="selectImageByObject" resultType="Image">
@@ -154,6 +155,7 @@
                 AND topp.pose_id = #{person.pose}
             )
         </foreach>
+        AND ti.score >= 4
         GROUP BY ti.url, ti.score
         HAVING COUNT(*) = ${personComponentList.size}
         ORDER BY ti.score DESC

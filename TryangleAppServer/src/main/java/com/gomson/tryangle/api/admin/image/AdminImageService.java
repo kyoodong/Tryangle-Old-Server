@@ -53,6 +53,7 @@ public class AdminImageService {
             byte[] buffer = new byte[1024];
             int i = 0;
             while (entry != null) {
+                System.out.println("i : " + i);
                 String fileName = entry.getName();
                 int slashIndex = fileName.lastIndexOf("/");
                 if (slashIndex > 0) {
@@ -65,8 +66,8 @@ public class AdminImageService {
 
                 file = new File(imageBaseDir, fileName);
                 if (file.exists()) {
-                    System.out.println("이미지 파일 이미 존재");
                     entry = zis.getNextEntry();
+                    System.out.println("이미지 파일 이미 존재");
                     continue;
                 }
 
@@ -100,7 +101,8 @@ public class AdminImageService {
 
                     // 오브젝트 없으면 패스
                     if (guideDTO.getPersonComponentList().isEmpty() && guideDTO.getObjectComponentList().isEmpty()) {
-                        file.deleteOnExit();
+                        // 나중에 이미지 파일은 있는데 db 에 없는것들 다 지워줘야함
+//                        file.deleteOnExit();
                         entry = zis.getNextEntry();
                         System.out.println("가이드 오브젝트 없음");
                         continue;
@@ -118,6 +120,7 @@ public class AdminImageService {
                     for (ObjectComponent component : guideDTO.getObjectComponentList()) {
                         imageDao.insertObject(image.getId(), component);
                     }
+                    
 
                     for (LineComponent component : guideDTO.getLineComponentList()) {
                         imageDao.insertEffectiveLine(image.getId(), component);
@@ -175,66 +178,23 @@ public class AdminImageService {
                     continue;
                 }
 
-                String maskFileName = image.getUrl() + ".mask";
-                File maskFile = new File(maskBaseDir, maskFileName);
-                if (maskFile.exists()) {
-                    System.out.println("maskFile already exist");
-                    continue;
-                }
-
                 RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"),
                         FileUtils.readFileToByteArray(file));
                 MultipartBody.Part body = MultipartBody.Part.createFormData(
-                        "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
-                Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
+                        "file", image.getUrl(), requestBody);
+                Call<Boolean> call = imageRetrofitService.extractFeature(body);
                 System.out.println("request!");
-                Response<JSONObject> response = call.execute();
+                Response<Boolean> response = call.execute();
                 if (response.isSuccessful()) {
-                    GuideDTO guideDTO = new GuideDTO(response.body());
+                    boolean result = false;
+                    if (response.body() != null)
+                        result = response.body();
 
-                    // 객체가 없고 채점이 안되어 있으면 사진 삭제
-                    if (guideDTO.getObjectComponentList().isEmpty() &&
-                            guideDTO.getPersonComponentList().isEmpty() &&
-                            image.getScore() < 0) {
-                        imageDao.deleteImage(image.getId());
-                        file.deleteOnExit();
-                        continue;
-                    }
-
-                    FileWriter writer = new FileWriter(maskFile);
-                    for (byte[] b : guideDTO.getMask()) {
-                        String data = Base64.getEncoder().encodeToString(b);
-                        writer.write(data);
-                    }
-                    writer.close();
-                    imageDao.updateCluster(image.getId(), guideDTO.getCluster());
-                    imageDao.deleteImageObject(image.getId());
-                    imageDao.deleteImageDominantColor(image.getId());
-                    for (LineComponent component : guideDTO.getLineComponentList()) {
-                        imageDao.insertEffectiveLine(image.getId(), component);
-                    }
-
-                    for (ObjectComponent component : guideDTO.getObjectComponentList()) {
-                        imageDao.insertObject(image.getId(), component);
-                    }
-
-                    for (PersonComponent component : guideDTO.getPersonComponentList()) {
-                        imageDao.insertObject(image.getId(), component);
-                        imageDao.insertHumanPose(component.getId(), component.getPose(), component.getPosePoints());
-                    }
-
-                    for (int colorId : guideDTO.getDominantColorList()) {
-                        imageDao.insertDominantColor(image.getId(), colorId);
-                    }
-
-                    for (int colorId : guideDTO.getDominantColorList()) {
-                        imageDao.insertDominantColor(image.getId(), colorId);
+                    if (!result) {
+                        System.out.println("Feature 추출 실패");
                     }
                 } else {
-                    if (image.getScore() < 0) {
-                        imageDao.deleteImage(image.getId());
-                        file.deleteOnExit();
-                    }
+                    System.out.println("Feature 추출 실패");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
