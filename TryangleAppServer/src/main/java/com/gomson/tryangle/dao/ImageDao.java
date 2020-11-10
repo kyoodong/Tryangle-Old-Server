@@ -60,4 +60,7 @@ public interface ImageDao {
     void deleteImageDominantColor(long imageId);
 
     List<String> selectImageUrlBySpotId(long spotId);
+
+    void updateBackground(@Param("imageId") long imageId,
+                          @Param("background") Integer background);
 }
