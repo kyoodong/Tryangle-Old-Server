@@ -14,8 +14,8 @@ public class Spot {
 
     private long id;
     private String name;
-    private double x;
-    private double y;
+    private double lat;
+    private double lon;
     private List<String> imageUrlList;
 
 }
