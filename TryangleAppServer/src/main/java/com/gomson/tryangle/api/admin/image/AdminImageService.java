@@ -115,7 +115,8 @@ public class AdminImageService {
                     }
                     writer.close();
 
-                    Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(), null, null, spotId);
+                    Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(),
+                            null, null, spotId, guideDTO.getBackground());
                     imageDao.insertImage(image);
                     for (ObjectComponent component : guideDTO.getObjectComponentList()) {
                         imageDao.insertObject(image.getId(), component);
@@ -182,17 +183,12 @@ public class AdminImageService {
                         FileUtils.readFileToByteArray(file));
                 MultipartBody.Part body = MultipartBody.Part.createFormData(
                         "file", image.getUrl(), requestBody);
-                Call<Boolean> call = imageRetrofitService.extractFeature(body);
+                Call<Integer> call = imageRetrofitService.backgroundExtractFeature(body);
                 System.out.println("request!");
-                Response<Boolean> response = call.execute();
+                Response<Integer> response = call.execute();
                 if (response.isSuccessful()) {
-                    boolean result = false;
-                    if (response.body() != null)
-                        result = response.body();
-
-                    if (!result) {
-                        System.out.println("Feature 추출 실패");
-                    }
+                    Integer result = response.body();
+                    imageDao.updateBackground(image.getId(), result);
                 } else {
                     System.out.println("Feature 추출 실패");
                 }

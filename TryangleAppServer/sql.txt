@@ -18,6 +18,7 @@ CREATE TABLE tryangle.tryangle_image
     `created_at`  DATETIME        NULL        COMMENT '이미지 생성 날짜 시간',
     `scored_at`   DATETIME        NULL        COMMENT '채점 날짜 시간',
     `spot_id`     INT             NULL        COMMENT '장소 아이디',
+    `background`  INT             NULL        COMMENT '배경'
     PRIMARY KEY (id)
 );
 
@@ -29,8 +30,8 @@ CREATE TABLE tryangle.tryangle_spot
 (
     `id`    INT            NOT NULL    AUTO_INCREMENT COMMENT '장소 아이디',
     `name`  VARCHAR(45)    NOT NULL    COMMENT '이름',
-    `x`     FLOAT          NOT NULL    COMMENT 'x좌표',
-    `y`     FLOAT          NOT NULL    COMMENT 'y좌표',
+    `lat`     DOUBLE          NOT NULL    COMMENT '위도',
+    `lon`     DOUBLE          NOT NULL    COMMENT '경도',
     PRIMARY KEY (id)
 );
 

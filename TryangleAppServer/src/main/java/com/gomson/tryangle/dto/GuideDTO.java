@@ -41,6 +41,7 @@ public class GuideDTO {
     private List<Integer> dominantColorList;
     private MaskList mask;
     private int cluster = -1;
+    private Integer background;
 
     public GuideDTO(JSONObject jsonObject) {
         lineComponentList = new ArrayList<>();

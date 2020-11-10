@@ -12,6 +12,6 @@ public interface SpotDao {
 
     void insertSpot(Spot spot);
 
-    List<Spot> selectNearSpotList(double x, double y);
+    List<Spot> selectNearSpotList(double lat, double lon);
 
 }

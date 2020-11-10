@@ -13,6 +13,8 @@ import process.color as color_guide
 from process.object import Human, Object
 import matplotlib.pyplot as plt
 from retrieval.feature.tf_extractor import extract_individual
+from retrieval.image_retrieval import certain_retrieval
+from background_classification.bg_cls import get_bg
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -87,12 +89,14 @@ class ImageGuideView(APIView):
                 component_list.append(component_dict)
                 count += 1
 
+        background = get_bg(image)
         body = {
             "component_list": component_list,
             "dominant_color_list": dominant_colors,
             "image_size": list(image.shape[:2]),
             "cluster": guider.cluster,
-            "mask": [list(y) for y in mask]
+            "mask": [list(y) for y in mask],
+            "background": background
         }
         return Response(str(body), status=status.HTTP_200_OK, content_type='application/json')
 
@@ -103,4 +107,22 @@ class ImageExtractFeatureView(APIView):
         name = file.name
         image = cv2.imdecode(np.frombuffer(file.file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
         result = extract_individual(image, name)
+        return Response(result, status=status.HTTP_200_OK, content_type='application/json')
+
+
+class SortForegroundImageView(APIView):
+    def post(self, request, format=None):
+        file = request.FILES['file']
+        image_list = request.POST.getlist('imageList')
+        image_list = list(map(lambda x: x.replace('"', ''), image_list))
+        image = cv2.imdecode(np.frombuffer(file.file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        result = certain_retrieval(image, image_list, 'output')
+        return Response(result, status=status.HTTP_200_OK, content_type='application/json')
+
+
+class ImageBackgroundExtractFeatureView(APIView):
+    def post(self, request, format=None):
+        file = request.FILES['file']
+        image = cv2.imdecode(np.frombuffer(file.file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        result = get_bg(image)
         return Response(result, status=status.HTTP_200_OK, content_type='application/json')

@@ -79,18 +79,14 @@ public class ImageService {
                 return null;
             }
 
-//            if (guideDTO.getCluster() >= 0) {
-//                imageUrlList.addAll(imageDao.selectImageUrlByCluster(guideDTO.getCluster(), guideDTO.getDominantColorList()));
-//            } else {
-                Set<String> set = new HashSet();
-                if (guideDTO.getPersonComponentList().size() > 0) {
-                    set.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 30));
-                }
-                if (guideDTO.getObjectComponentList().size() > 0) {
-                    set.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 30));
-                }
-                imageUrlList.addAll(set);
-//            }
+            Set<String> set = new HashSet();
+            if (guideDTO.getPersonComponentList().size() > 0) {
+                set.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 30));
+            }
+            if (guideDTO.getObjectComponentList().size() > 0) {
+                set.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 30));
+            }
+            imageUrlList.addAll(set);
             return new GuideImageListDTO(guideDTO, imageUrlList);
         } catch (IOException e) {
             e.printStackTrace();

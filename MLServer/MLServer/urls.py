@@ -27,5 +27,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('image-segmentation', views.ImageSegmentationView.as_view()),
     path('image-guide', views.ImageGuideView.as_view()),
-    path('extract-feature', views.ImageExtractFeatureView.as_view())
+    path('extract-feature', views.ImageExtractFeatureView.as_view()),
+    path('sort-foreground-image', views.SortForegroundImageView.as_view()),
+    path('background-extract-feature', views.ImageBackgroundExtractFeatureView.as_view())
 ]

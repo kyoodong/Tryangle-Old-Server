@@ -21,5 +21,6 @@ public class Image {
     private LocalDateTime createdAt;
     private LocalDateTime scoredAt;
     private Long spotId = null;
+    private Integer background;
 
 }
