@@ -81,13 +81,18 @@ public class ImageService {
 
             Set<String> set = new HashSet();
             if (guideDTO.getPersonComponentList().size() > 0) {
-                set.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 30));
+                set.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 50));
             }
             if (guideDTO.getObjectComponentList().size() > 0) {
-                set.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 30));
+                set.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 50));
             }
             imageUrlList.addAll(set);
-            return new GuideImageListDTO(guideDTO, imageUrlList);
+
+            Call<List<String>> sortCall = imageRetrofitService.sortBackgroundImage(body, imageUrlList);
+            Response<List<String>> sortResponse = sortCall.execute();
+            if (!sortResponse.isSuccessful() || sortResponse.body() == null)
+                return new GuideImageListDTO(guideDTO, imageUrlList);
+            return new GuideImageListDTO(guideDTO, sortResponse.body());
         } catch (IOException e) {
             e.printStackTrace();
             return null;

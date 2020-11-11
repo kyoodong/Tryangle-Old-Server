@@ -31,4 +31,8 @@ public interface ImageRetrofitService {
     @Multipart
     @POST("background-extract-feature")
     Call<Integer> backgroundExtractFeature(@Part MultipartBody.Part image);
+
+    @Multipart
+    @POST("sort-background-image")
+    Call<List<String>> sortBackgroundImage(@Part MultipartBody.Part image, @Part("imageList") List<String> imageList);
 }
