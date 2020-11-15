@@ -263,3 +263,7 @@ MLServer/db_sql
 MLServer/mysql.cnf
 mysql.cnf
 db_sql
+
+# 모바일 모델
+cache_data
+model_config.yml
