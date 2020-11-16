@@ -268,3 +268,5 @@ db_sql
 cache_data
 model_config.yml
 application.yml
+output
+__pycache__
