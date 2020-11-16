@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 
 public class AccessTokenInterceptor implements HandlerInterceptor {
 
-    private static final int MAX_ACCESS_COUNT = 1000;
+    private static final int MAX_ACCESS_COUNT = 100000;
 
     @Autowired
     private AccessTokenDao accessTokenDao;

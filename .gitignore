@@ -267,3 +267,4 @@ db_sql
 # 모바일 모델
 cache_data
 model_config.yml
+application.yml
