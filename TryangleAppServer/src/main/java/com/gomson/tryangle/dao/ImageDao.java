@@ -31,18 +31,21 @@ public interface ImageDao {
 
     // 객체 수 = 무조건 맞아야 함, 크기 = 어느 정도, 위치 = 어느 정도
     List<String> selectImageUrlByObjects(
-            List<ObjectComponent> objectComponentList,
-            int areaThreshold,
-            int positionThreshold);
+            @Param("objectComponentList") List<ObjectComponent> objectComponentList,
+            @Param("areaThreshold") int areaThreshold,
+            @Param("positionThreshold") int positionThreshold);
 
     List<Image> selectImageByObject(int objectId);
     List<Image> selectSinglePersonImage();
 
-    List<String> selectImageUrlByPerson(List<PersonComponent> personComponentList,
-                                        int areaThreshold,
-                                        int positionThreshold);
+    List<String> selectImageUrlByPerson(
+            @Param("personComponentList") List<PersonComponent> personComponentList,
+            @Param("areaThreshold") int areaThreshold,
+            @Param("positionThreshold") int positionThreshold);
 
-    List<String> selectImageUrlByCluster(int cluster, List<Integer> colorList);
+    List<String> selectImageUrlByCluster(
+            @Param("cluster") int cluster,
+            @Param("colorList") List<Integer> colorList);
 
     List<ObjectComponent> selectComponentByUrl(String url);
     String selectUrlById(long imageId);
