@@ -13,7 +13,7 @@ spring:
         format-sql: true
   devtools:
     restart:
-      exclude: images/**,masks/**
+      exclude: images/**,masks/**,cache_data/**,mask_images/**
 
 
 logging:
@@ -22,7 +22,7 @@ logging:
     org.hibernate.type: debug
 
 server:
-  port: 7776
+  port: 7777
 #  ssl:
 #    enabled: true
 #    key-store: keystore_dev.p12

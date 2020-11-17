@@ -9,12 +9,13 @@ import java.util.List;
 
 public interface ImageRetrofitService {
 
-    @POST("sort-recommend-image")
-    Call<JSONObject> sortRecommendImage(@Part MultipartBody.Part image, List<String> imageUrlList);
-
     @Multipart
     @POST("image-guide")
     Call<JSONObject> getImageGuide(@Part MultipartBody.Part image);
+
+    @Multipart
+    @POST("image-complex-guide")
+    Call<JSONObject> getImageComplexGuide(@Part MultipartBody.Part image);
 
     @Multipart
     @POST("image-segmentation")

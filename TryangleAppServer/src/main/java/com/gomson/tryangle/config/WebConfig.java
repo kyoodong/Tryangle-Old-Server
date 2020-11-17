@@ -23,7 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/", "classpath:/META-INF/resources",
-                        "classpath:/images/", "classpath:/masks/");
+                        "classpath:/images/", "classpath:/masks/", "classpath:/cache_data/", "classpath:/mask_images/");
     }
 
     @Bean

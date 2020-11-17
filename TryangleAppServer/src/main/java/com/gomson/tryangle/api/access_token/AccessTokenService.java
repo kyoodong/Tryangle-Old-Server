@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Service
 public class AccessTokenService {
 
-    private static final int TOKEN_EXPIRED_HOUR = 3;
+    private static final int TOKEN_EXPIRED_WEEKS = 3;
 
     @Autowired
     private AccessTokenDao accessTokenDao;
@@ -19,7 +19,7 @@ public class AccessTokenService {
     AccessToken issueToken(String ip) {
         AccessToken accessToken = new AccessToken(0, "",
                 LocalDateTime.now(),
-                LocalDateTime.now().plusHours(TOKEN_EXPIRED_HOUR),
+                LocalDateTime.now().plusWeeks(TOKEN_EXPIRED_WEEKS),
                 0, ip);
 
         accessTokenDao.insertToken(accessToken);

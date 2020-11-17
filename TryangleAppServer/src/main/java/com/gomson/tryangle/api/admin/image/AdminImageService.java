@@ -19,10 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.*;
 import java.util.Base64;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -38,9 +38,10 @@ public class AdminImageService {
     private ImageRetrofitService imageRetrofitService;
 
     @Transactional
-    boolean insertImageList(String imageBaseDir, String maskBasDir, MultipartFile imageZip, Long spotId) {
+    boolean insertImageList(String imageBaseDir, String maskBaseDir, String maskImageBaseDir, MultipartFile imageZip, Long spotId) {
         File file = null;
         File maskFile = null;
+        File maskImageFile = null;
         try {
             // zip 파일 체크
             String fileType = imageZip.getOriginalFilename().substring(imageZip.getOriginalFilename().lastIndexOf(".") + 1);
@@ -72,13 +73,16 @@ public class AdminImageService {
                 }
 
                 String maskFileName = fileName + ".mask";
-                maskFile = new File(maskBasDir, maskFileName);
+                maskFile = new File(maskBaseDir, maskFileName);
 
                 if (maskFile.exists()) {
                     System.out.println("마스크 파일 이미 존재");
                     entry = zis.getNextEntry();
                     continue;
                 }
+
+                String maskImageFileName = fileName + ".maskimage";
+                maskImageFile = new File(maskImageBaseDir, maskImageFileName);
 
                 final int I = i % 3;
                 i++;
@@ -94,7 +98,7 @@ public class AdminImageService {
                         FileUtils.readFileToByteArray(file));
                 MultipartBody.Part body = MultipartBody.Part.createFormData(
                         "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
-                Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
+                Call<JSONObject> call = imageRetrofitService.getImageComplexGuide(body);
                 Response<JSONObject> response = call.execute();
                 if (response.isSuccessful()) {
                     GuideDTO guideDTO = new GuideDTO(response.body());
@@ -109,10 +113,19 @@ public class AdminImageService {
                     }
 
                     FileWriter writer = new FileWriter(maskFile);
+                    FileOutputStream maskFos = new FileOutputStream(maskImageFile);
                     for (byte[] b : guideDTO.getMask()) {
                         String data = Base64.getEncoder().encodeToString(b);
                         writer.write(data);
+
+                        // @TODO  마스크 이미지 파일 생성 잘 되는지 확인 필요
+                        for (int k = 0; k < b.length; k++) {
+                            if (b[k] > 0)
+                                b[k] = 1;
+                        }
+                        maskFos.write(b);
                     }
+                    maskFos.close();
                     writer.close();
 
                     Image image = new Image(0, fileName, String.valueOf(I), -1, guideDTO.getCluster(),
@@ -143,11 +156,14 @@ public class AdminImageService {
 
             return true;
         } catch (Exception e) {
-            if (file != null)
-                file.deleteOnExit();
+            if (file != null && file.exists())
+                file.delete();
 
-            if (maskFile != null)
-                maskFile.deleteOnExit();
+            if (maskFile != null && maskFile.exists())
+                maskFile.delete();
+
+            if (maskImageFile != null && maskImageFile.exists())
+                maskImageFile.delete();
             e.printStackTrace();
             return false;
         }
@@ -163,41 +179,102 @@ public class AdminImageService {
     }
 
     @Transactional
-    synchronized Boolean refresh(String imageBaseDir, String maskBaseDir) {
+    synchronized Boolean refresh(String imageBaseDir, String maskBaseDir, String maskImageBaseDir) {
         File file = null;
-        Image lastImage = null;
-        List<Image> imageList = imageDao.selectAllImageList();
-
-        for (int imageCount = 0; imageCount < imageList.size(); imageCount++) {
-            Image image = imageList.get(imageCount);
-            lastImage = image;
-            System.out.println(imageCount + "/" + imageList.size() + " 작업중");
-            try {
+        File maskImageFile = null;
+        File maskFile = null;
+        try {
+            List<Image> imageList = imageDao.selectAllImageList();
+            int count = 0;
+            for (Image image : imageList) {
+                count++;
+                System.out.println(count + "/" + imageList.size() + " 처리 중...");
                 file = new File(imageBaseDir, image.getUrl());
                 if (!file.exists()) {
+                    System.out.println("이미지 파일 없음");
                     imageDao.deleteImage(image.getId());
                     continue;
                 }
 
-                RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"),
-                        FileUtils.readFileToByteArray(file));
-                MultipartBody.Part body = MultipartBody.Part.createFormData(
-                        "file", image.getUrl(), requestBody);
-                Call<Integer> call = imageRetrofitService.backgroundExtractFeature(body);
-                System.out.println("request!");
-                Response<Integer> response = call.execute();
-                if (response.isSuccessful()) {
-                    Integer result = response.body();
-                    imageDao.updateBackground(image.getId(), result);
-                } else {
-                    System.out.println("Feature 추출 실패");
+                String maskFileName = image.getUrl() + ".mask";
+                maskFile = new File(maskBaseDir, maskFileName);
+
+                if (!maskFile.exists()) {
+                    System.out.println("마스크 파일 없음");
+                    imageDao.deleteImage(image.getId());
+                    file.delete();
+                    continue;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
+
+                String maskImageFileName = image.getUrl() + "_maskimage.jpg";
+                maskImageFile = new File(maskImageBaseDir, maskImageFileName);
+
+                if (maskImageFile.exists()) {
+                    System.out.println("마스크 파일 이미 존재");
+                    continue;
+                }
+
+                FileReader reader = null;
+                try {
+                    reader = new FileReader(maskFile);
+                    BufferedImage bufferedImage = new BufferedImage(640, 640, BufferedImage.TYPE_BYTE_GRAY);
+                    byte[] data = ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData();
+
+                    char[] buffer = new char[4096];
+                    int length;
+
+                    StringBuilder sb = new StringBuilder();
+                    int position = 0;
+                    while ((length = reader.read(buffer, 0, buffer.length)) > 0) {
+                        sb.append(buffer, 0, length);
+                        int index = sb.indexOf("==");
+                        while (index > 0) {
+                            String base64 = sb.substring(0, index + 2);
+                            byte[] bytes = Base64.getDecoder().decode(base64);
+                            for (int i = 0; i < bytes.length; i++) {
+                                if (bytes[i] > 0)
+                                    bytes[i] = (byte) 255;
+                            }
+                            System.arraycopy(bytes, 0, data, position, bytes.length);
+                            position += bytes.length;
+
+                            sb.delete(0, index + 2);
+                            index = sb.indexOf("==");
+                        }
+                    }
+                    if (!ImageIO.write(bufferedImage, "jpg", maskImageFile)) {
+                        System.out.println("실패");
+
+                        imageDao.deleteImage(image.getId());
+                        if (file != null && file.exists())
+                            file.delete();
+
+                        if (maskFile != null && maskFile.exists())
+                            maskFile.delete();
+
+                        if (maskImageFile != null && maskImageFile.exists())
+                            maskImageFile.delete();
+                    }
+                } catch (Exception e) {
+                    imageDao.deleteImage(image.getId());
+                    if (file != null && file.exists())
+                        file.delete();
+
+                    if (maskFile != null && maskFile.exists())
+                        maskFile.delete();
+
+                    if (maskImageFile != null && maskImageFile.exists())
+                        maskImageFile.delete();
+                    e.printStackTrace();
+                } finally {
+                    reader.close();
+                }
             }
+            return true;
+        } catch (Exception e) {
+            System.out.println("실패");
+            return false;
         }
-        return true;
     }
 
     @Transactional
@@ -213,7 +290,7 @@ public class AdminImageService {
                             FileUtils.readFileToByteArray(file));
                     MultipartBody.Part body = MultipartBody.Part.createFormData(
                             "file", "${SystemClock.uptimeMillis()}.jpeg", requestBody);
-                    Call<JSONObject> call = imageRetrofitService.getImageGuide(body);
+                    Call<JSONObject> call = imageRetrofitService.getImageComplexGuide(body);
                     Response<JSONObject> response = call.execute();
                     if (response.isSuccessful()) {
                         GuideDTO guideDTO = new GuideDTO(response.body());

@@ -27,6 +27,7 @@ public class AdminImageApiController {
         return adminImageService.insertImageList(
                 resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",
                 resourceLoader.getResource("classpath:masks").getFile().getAbsolutePath() + "/",
+                resourceLoader.getResource("classpath:mask_images").getFile().getAbsolutePath() + "/",
                 imageZip,
                 null);
     }
@@ -37,6 +38,7 @@ public class AdminImageApiController {
         return adminImageService.insertImageList(
                 resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",
                 resourceLoader.getResource("classpath:masks").getFile().getAbsolutePath() + "/",
+                resourceLoader.getResource("classpath:mask_images").getFile().getAbsolutePath() + "/",
                 imageZip,
                 spotId);
     }
@@ -55,7 +57,8 @@ public class AdminImageApiController {
     private Boolean refresh() throws IOException {
         return adminImageService.refresh(
                 resourceLoader.getResource("classpath:images").getFile().getAbsolutePath() + "/",
-                resourceLoader.getResource("classpath:masks").getFile().getAbsolutePath() + "/");
+                resourceLoader.getResource("classpath:masks").getFile().getAbsolutePath() + "/",
+                resourceLoader.getResource("classpath:mask_images").getFile().getAbsolutePath() + "/");
     }
 
     @GetMapping("refresh-cluster")

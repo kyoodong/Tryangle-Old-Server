@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 import process.image_api as api
 from MLServer.MLServer.serializers import UserSerializer
 from MLServer.MLServer.tryangle_models import User
-from process.guider.guider import Guider
+from process.guider.guider import SimpleGuider, ComplexGuider
 from process.component import LineComponent
 import process.color as color_guide
 from process.object import Human, Object
@@ -49,13 +49,57 @@ class ImageSegmentationView(APIView):
         return Response(str(body), status=status.HTTP_200_OK, content_type='application/json')
 
 
-# 사진 DB 정리할 때 필요한 가이드 추출
+# App
 class ImageGuideView(APIView):
     def post(self, request, format=None):
         file = request.FILES['file']
         image = cv2.imdecode(np.frombuffer(file.file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
         dominant_colors = list(color_guide.find_dominant_colors(image))
-        guider = Guider(image, False)
+        guider = SimpleGuider()
+        guider.guide(image, False)
+
+        component_list = list()
+        mask = np.zeros((image.shape[0], image.shape[1]), np.uint8)
+        count = 0
+        for component in guider.component_list:
+            if isinstance(component, LineComponent):
+                component_list.append(component)
+            else:
+                component_dict = dict()
+                data = dict()
+
+                data['id'] = component.id
+                data['class'] = component.object.clazz
+                data['center_point_x'] = component.object.center_point[0]
+                data['center_point_y'] = component.object.center_point[1]
+                data['area'] = component.object.area
+                mask = np.add(mask, (np.left_shift(component.object.mask.astype(np.uint8), count)))
+                data['roi'] = list(component.object.roi)
+                data['guide_list'] = component.guide_list
+                component_dict['ObjectComponent'] = data
+                component_list.append(component_dict)
+                count += 1
+
+        background = get_bg(image)
+        body = {
+            "component_list": component_list,
+            "dominant_color_list": dominant_colors,
+            "image_size": list(image.shape[:2]),
+            "cluster": guider.cluster,
+            "mask": [list(y) for y in mask],
+            "background": background
+        }
+        return Response(str(body), status=status.HTTP_200_OK, content_type='application/json')
+
+
+# 사진 DB 정리할 때 필요한 가이드 추출
+class ImageComplexGuideView(APIView):
+    def post(self, request, format=None):
+        file = request.FILES['file']
+        image = cv2.imdecode(np.frombuffer(file.file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        dominant_colors = list(color_guide.find_dominant_colors(image))
+        guider = ComplexGuider()
+        guider.guide(image, False)
 
         component_list = list()
         mask = np.zeros((image.shape[0], image.shape[1]), np.uint8)
