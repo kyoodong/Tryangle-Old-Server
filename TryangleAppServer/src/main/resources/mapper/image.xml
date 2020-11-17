@@ -125,7 +125,7 @@
     </select>
 
     <select id="selectImageByObject" resultType="Image">
-        SELECT i.* FROM tryangle_image i
+        SELECT DISTINCT i.* FROM tryangle_image i
         JOIN tryangle_image_object tio on i.id = tio.image_id
         WHERE tio.object_id = #{objectId}
     </select>
