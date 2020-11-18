@@ -33,7 +33,8 @@ public interface ImageDao {
     List<String> selectImageUrlByObjects(
             @Param("objectComponentList") List<ObjectComponent> objectComponentList,
             @Param("areaThreshold") int areaThreshold,
-            @Param("positionThreshold") int positionThreshold);
+            @Param("positionThreshold") int positionThreshold,
+            @Param("score") int score);
 
     List<Image> selectImageByObject(int objectId);
     List<Image> selectSinglePersonImage();
@@ -41,7 +42,8 @@ public interface ImageDao {
     List<String> selectImageUrlByPerson(
             @Param("personComponentList") List<PersonComponent> personComponentList,
             @Param("areaThreshold") int areaThreshold,
-            @Param("positionThreshold") int positionThreshold);
+            @Param("positionThreshold") int positionThreshold,
+            @Param("score") int score);
 
     List<String> selectImageUrlByCluster(
             @Param("cluster") int cluster,
