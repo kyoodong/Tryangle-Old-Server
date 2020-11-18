@@ -80,20 +80,16 @@ public class ImageService {
             }
 
             Set<String> set = new HashSet();
-            if (guideDTO.getPersonComponentList().size() > 0) {
-                set.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 50, 5));
-            }
-            if (guideDTO.getObjectComponentList().size() > 0) {
-                set.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 50, 5));
-            }
-
-            if (set.size() < 10) {
+            for (int i = 5; i >= 2; i--) {
                 if (guideDTO.getPersonComponentList().size() > 0) {
-                    set.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 50, 4));
+                    set.addAll(imageDao.selectImageUrlByPerson(guideDTO.getPersonComponentList(), 5, 50, i));
                 }
                 if (guideDTO.getObjectComponentList().size() > 0) {
-                    set.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 50, 4));
+                    set.addAll(imageDao.selectImageUrlByObjects(guideDTO.getObjectComponentList(), 5, 50, i));
                 }
+
+                if (set.size() >= 10)
+                    break;
             }
             imageUrlList.addAll(set);
 
